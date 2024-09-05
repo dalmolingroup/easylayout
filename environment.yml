@@ -5,6 +5,7 @@ channels:
 dependencies:
   - r-base
   - r-essentials
+  - r-usethis
   - r-roxygen2
   - r-testthat
   - r-knitr
