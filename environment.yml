@@ -1,0 +1,14 @@
+name: easylayout
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - r-base
+  - r-essentials
+  - r-roxygen2
+  - r-testthat
+  - r-knitr
+  - r-languageserver
+  - r-rmarkdown
+  - radian
+  - pnpm
