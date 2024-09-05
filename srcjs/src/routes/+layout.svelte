@@ -2,7 +2,7 @@
 	import Header from './Header.svelte';
 	import '../app.css';
 
-	export const ssr = false;
+	export const trailingSlash = 'always';
 </script>
 
 <div class="app">
