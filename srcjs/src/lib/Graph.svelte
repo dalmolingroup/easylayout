@@ -5,11 +5,8 @@
   let container;
 
   onMount(() => {
-    const graph = Viva.Graph.graph();
-
-    graph.addNode('A');
-    graph.addNode('B');
-    graph.addLink('A', 'B');
+    const graphGenerator = Viva.Graph.generator();
+    const graph = graphGenerator.grid(20, 20);
 
     const renderer = Viva.Graph.View.renderer(graph, {
       container: container,
