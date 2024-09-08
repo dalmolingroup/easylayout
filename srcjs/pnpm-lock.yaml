@@ -11,6 +11,9 @@ importers:
       svelte-spa-router:
         specifier: ^4.0.1
         version: 4.0.1
+      vivagraphjs:
+        specifier: ^0.12.0
+        version: 0.12.0
     devDependencies:
       '@sveltejs/vite-plugin-svelte':
         specifier: ^3.1.1
@@ -287,6 +290,9 @@ packages:
     engines: {node: '>=0.4.0'}
     hasBin: true
 
+  add-event-listener@0.0.1:
+    resolution: {integrity: sha512-hjRmkeDqFUWEFcDHP/Lp0Pa4MhIJk/oQX8B7lFiNrjBKHjf0q+ivCJrucY8d8UI5d0QkZgV2jGdAGXxEZcm3nA==}
+
   aria-query@5.3.0:
     resolution: {integrity: sha512-b0P0sZPKtyu8HkeRAfCq0IfURZK+SuwMjY1UXGBU27wpAiTwQAIlq56IbIO+ytk/JjS1fMR14ee5WBBfKi5J6A==}
 
@@ -331,6 +337,9 @@ packages:
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
     os: [darwin]
 
+  gintersect@0.1.0:
+    resolution: {integrity: sha512-jps8Ckj6u8yLxOYzBVJbPqvRdeHOINQgRtufaLHkunwNQcSEdZU0ejPBapSimXJEQ9mdQW4hsEUN7DfJEcTvQQ==}
+
   is-reference@3.0.2:
     resolution: {integrity: sha512-v3rht/LgVcsdZa3O2Nqs+NMowLOxeOm7Ay9+/ARQ2F+qEoANRcqrjAZKGN0v8ymUetZGgkp26LTnGT7H0Qo9Pg==}
 
@@ -355,6 +364,51 @@ packages:
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
+  ngraph.centrality@0.3.0:
+    resolution: {integrity: sha512-Qmu9dDHJAx+GAW2AMqmhaub1rINS+fHZGZJ3zPI36ENAXmVNQ/Jkq79br1sg6NUHz/pRBT9MXMuwDyYKmMt8Mw==}
+
+  ngraph.events@0.0.3:
+    resolution: {integrity: sha512-UrewofHOFk/05otBm9GD4DA3PTEY/yaElhCclmGC4IcmAYaSDRrC3lENQxJ00AzeBnz1GY2xH7Ct7AfIdhsdWA==}
+
+  ngraph.events@0.0.4:
+    resolution: {integrity: sha512-SY7MdNQoy5KyaVxg03PYCnGF6J7l4p8lEdmYm/5oIqFAmLhg0BmzZzlRqobJ0nEPT6xZlonUQbvCcXtarPZNrg==}
+
+  ngraph.expose@0.0.0:
+    resolution: {integrity: sha512-Hr88MuhgoSLVGf2aaaXcKl22Rn95duWsjRcoeJMP9PtFmYHGFw/3ctDqBf5phnIyktm0P/Quxs5EGg6xgJcZAQ==}
+
+  ngraph.forcelayout@0.5.0:
+    resolution: {integrity: sha512-qOd1S9unFLw313+l0M/Dk1MePLDUSl4h9RyOtAbo0CyeefnN4PICiRz0LOewR5WuFmQD0/RmZLpjTKu0H7LTKQ==}
+
+  ngraph.fromjson@0.1.9:
+    resolution: {integrity: sha512-f3GLjbUq239wx4s5A0fDptj9dcNeaEIJU3gm74hWvYK7onD7sFtedP7jVHZA7UJ2FwkKgEhzbPeltv92ycuKZQ==}
+
+  ngraph.generators@0.0.19:
+    resolution: {integrity: sha512-P3XqB1sH4zrzM6bMGTtuT/6K76Rnhf1qE8Zu7PkAvhQVCQzdLYiL2/8DwhcPLsetRJHNJv0uwpW9TpntBAqKrw==}
+
+  ngraph.graph@0.0.14:
+    resolution: {integrity: sha512-ERTLng4KrsGbR7iLZFvg5H+zJ7V+SY8RDqZKYCnOZib5W8M5LCvcil9/8eiJcTRUIPPXW3j8hqPCdLnBvgsn/A==}
+
+  ngraph.merge@0.0.1:
+    resolution: {integrity: sha512-iXchI5xMjYzA96mee//O7I7gtd4cCakWaSTu11aMTxRDbvBK2qpDDytYg58jO3usAUkjFxBdy1gxYppKmBDuRQ==}
+
+  ngraph.physics.primitives@0.0.7:
+    resolution: {integrity: sha512-7jPm14fYcuJ9kytOVNOKxFy6r/Uu9Dnj++uT3iR9XkBcsBahn2xcYJkV6vF1bIb1fQ5XrDCRjRIOcMwEum6jwQ==}
+
+  ngraph.physics.simulator@0.3.0:
+    resolution: {integrity: sha512-ObW+HL+hQBIIdc6xG/+qrLe8qv+Sf0X3lq/l2hsjFrIwWtpRKLrSvUUoXiNIeFqRmY/C+PkGo3U+XY523lJ+Fw==}
+
+  ngraph.quadtreebh@0.0.4:
+    resolution: {integrity: sha512-xTIkWGXt5Ajnoq9VOr0xDOI9ZL+q4sPhD0Z7vxvn4MCa+l0wf43rg0C7qv0t+RIOgbQBAp0xDpn568hpXAckJA==}
+
+  ngraph.random@0.0.1:
+    resolution: {integrity: sha512-QPKU7ChXF/VrvMQxVo9aWcvXCXp98VfL4nKUteTW/olDqeUqQ61t7m+jvFb8Dj7kKvlKlnsbDA1aWLJGmm17XA==}
+
+  ngraph.random@0.1.0:
+    resolution: {integrity: sha512-KXCfzk/ZB79BxQSWMvYPGayx3Mb+7n5GPnc8SW0rwysqRV/3QxEKrLU/UVC8eGjc2SYGofqX+uhUE6IXfqR5VA==}
+
+  ngraph.tojson@0.1.4:
+    resolution: {integrity: sha512-Ii2BTqi8zBRMLH8vTc8pMUKQFJaqbgttG9DKUaazoPVpwC/ww4jyTOHe2ZKaGGZRepnGLqSZ27wZUm7n8MjIgA==}
+
   periscopic@3.1.0:
     resolution: {integrity: sha512-vKiQ8RRtkl9P+r/+oefh25C3fhybptkHKCZSPlcXiJux2tJF55GnEj3BVn4A5gKfq9NWWXXrxkHBwVPUfH0opw==}
 
@@ -373,6 +427,9 @@ packages:
     resolution: {integrity: sha512-e3TapAgYf9xjdLvKQCkQTnbTKd4a6jwlpQSJJFokHGaX2IVjoEqkIIhiQfqsi0cdwlOD+tQGuOd5AJkc5RngBw==}
     engines: {node: '>=18.0.0', npm: '>=8.0.0'}
     hasBin: true
+
+  simplesvg@0.0.10:
+    resolution: {integrity: sha512-iCVx1A/kI4U3cGPRMRQaGLbIFNDXuB8rsaAsO2mM5wYFDs/MrfmHhrSCqNbOylgt9MhhZU3uMsSQnZM853kwXQ==}
 
   source-map-js@1.2.0:
     resolution: {integrity: sha512-itJW8lvSA0TXEphiRoawsCksnlf8SyvmFzIhltqAHluXd88pkCd+cXJVHTDwdCr0IzwptSm035IHQktUu1QUMg==}
@@ -429,6 +486,9 @@ packages:
     peerDependenciesMeta:
       vite:
         optional: true
+
+  vivagraphjs@0.12.0:
+    resolution: {integrity: sha512-Air+vUHXAWj8NTWUnbU800yKC7SiHpCVwpKIPfDtr5436YoMd7cpg8blt6Fn9xarx+sz1osRxGHBHTaHvcsR6Q==}
 
 snapshots:
 
@@ -598,6 +658,8 @@ snapshots:
 
   acorn@8.12.1: {}
 
+  add-event-listener@0.0.1: {}
+
   aria-query@5.3.0:
     dependencies:
       dequal: 2.0.3
@@ -658,6 +720,8 @@ snapshots:
   fsevents@2.3.3:
     optional: true
 
+  gintersect@0.1.0: {}
+
   is-reference@3.0.2:
     dependencies:
       '@types/estree': 1.0.5
@@ -675,6 +739,55 @@ snapshots:
   ms@2.1.2: {}
 
   nanoid@3.3.7: {}
+
+  ngraph.centrality@0.3.0: {}
+
+  ngraph.events@0.0.3: {}
+
+  ngraph.events@0.0.4: {}
+
+  ngraph.expose@0.0.0: {}
+
+  ngraph.forcelayout@0.5.0:
+    dependencies:
+      ngraph.events: 0.0.4
+      ngraph.physics.simulator: 0.3.0
+
+  ngraph.fromjson@0.1.9:
+    dependencies:
+      ngraph.graph: 0.0.14
+
+  ngraph.generators@0.0.19:
+    dependencies:
+      ngraph.graph: 0.0.14
+      ngraph.random: 0.1.0
+
+  ngraph.graph@0.0.14:
+    dependencies:
+      ngraph.events: 0.0.3
+
+  ngraph.merge@0.0.1: {}
+
+  ngraph.physics.primitives@0.0.7: {}
+
+  ngraph.physics.simulator@0.3.0:
+    dependencies:
+      ngraph.events: 0.0.3
+      ngraph.expose: 0.0.0
+      ngraph.merge: 0.0.1
+      ngraph.physics.primitives: 0.0.7
+      ngraph.quadtreebh: 0.0.4
+      ngraph.random: 0.0.1
+
+  ngraph.quadtreebh@0.0.4:
+    dependencies:
+      ngraph.random: 0.0.1
+
+  ngraph.random@0.0.1: {}
+
+  ngraph.random@0.1.0: {}
+
+  ngraph.tojson@0.1.4: {}
 
   periscopic@3.1.0:
     dependencies:
@@ -714,6 +827,10 @@ snapshots:
       '@rollup/rollup-win32-x64-msvc': 4.21.2
       fsevents: 2.3.3
 
+  simplesvg@0.0.10:
+    dependencies:
+      add-event-listener: 0.0.1
+
   source-map-js@1.2.0: {}
 
   svelte-hmr@0.16.0(svelte@4.2.19):
@@ -752,3 +869,17 @@ snapshots:
   vitefu@0.2.5(vite@5.4.3):
     optionalDependencies:
       vite: 5.4.3
+
+  vivagraphjs@0.12.0:
+    dependencies:
+      gintersect: 0.1.0
+      ngraph.centrality: 0.3.0
+      ngraph.events: 0.0.3
+      ngraph.forcelayout: 0.5.0
+      ngraph.fromjson: 0.1.9
+      ngraph.generators: 0.0.19
+      ngraph.graph: 0.0.14
+      ngraph.merge: 0.0.1
+      ngraph.random: 0.0.1
+      ngraph.tojson: 0.1.4
+      simplesvg: 0.0.10
