@@ -7,6 +7,12 @@
 
   const graphGenerator = Viva.Graph.generator();
   const graph = graphGenerator.grid(5, 5);
+
+  let selectedLayout = "viva";
+
+  function toggleLayout() {
+    selectedLayout = selectedLayout === "viva" ? "d3" : "viva";
+  }
 </script>
 
 <main>
@@ -15,10 +21,16 @@
     <Counter />
   </div>
   <div class="card">
-    <Graph {graph} layoutSpecification={forceLayoutViva} />
+    <button on:click={toggleLayout}>
+      Toggle Layout
+    </button>
   </div>
   <div class="card">
-    <Graph {graph} layoutSpecification={forceLayoutD3} />
+    {#if selectedLayout === "viva"}
+      <Graph {graph} layoutSpecification={forceLayoutViva} />
+    {:else}
+      <Graph {graph} layoutSpecification={forceLayoutD3} />
+    {/if}
   </div>
 </main>
 
