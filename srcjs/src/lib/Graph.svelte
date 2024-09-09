@@ -1,14 +1,24 @@
 <script>
-  import { onMount } from 'svelte';
+  import { onMount, onDestroy } from 'svelte';
+  import { nodePositions } from '../store.js';
   import Viva from 'vivagraphjs';
 
   export let graph;
   export let layoutSpecification;
+  export let positions;
 
   let container;
-
+  let layout;
+  
   onMount(() => {
-    const layout = layoutSpecification(graph);
+    layout = layoutSpecification(graph);
+
+    if (positions.length !== 0) {
+      graph.forEachNode(node => {
+        let nodePosition = positions[node.id]
+        layout.setNodePosition(node.id, nodePosition.x, nodePosition.y);
+      });
+    }
 
     const renderer = Viva.Graph.View.renderer(graph, {
       layout: layout,
@@ -17,6 +27,15 @@
     });
 
     renderer.run();
+  });
+
+  onDestroy(() => {
+    let positions = [];
+    graph.forEachNode(node => {
+      let nodePosition = layout.getNodePosition(node.id);
+      positions.push({ x: nodePosition.x, y: nodePosition.y });
+    });
+    nodePositions.set(positions);
   });
 </script>
 
