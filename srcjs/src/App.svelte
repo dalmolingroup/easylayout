@@ -17,13 +17,13 @@
     positions = value;
   });
 
-function switchLayout() {
-  selectedLayout = selectedLayout === "viva" ? "d3" : "viva";
-}
+  function switchLayout() {
+    selectedLayout = selectedLayout === "viva" ? "d3" : "viva";
+  }
 
-function toggleSimulation() {
-  isSimulationRunning = isSimulationRunning ? false : true;
-}
+  function toggleSimulation() {
+    isSimulationRunning = isSimulationRunning ? false : true;
+  }
 </script>
 
 <main>
