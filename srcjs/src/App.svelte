@@ -1,8 +1,9 @@
 <script>
   import Counter from './lib/Counter.svelte';
   import Graph from './lib/Graph.svelte';
-  import GraphD3 from './lib/GraphD3.svelte';
   import Viva from 'vivagraphjs';
+  import forceLayoutViva from './lib/forceLayoutViva';
+  import forceLayoutD3 from './lib/forceLayoutD3';
 
   const graphGenerator = Viva.Graph.generator();
   const graph = graphGenerator.grid(5, 5);
@@ -14,10 +15,10 @@
     <Counter />
   </div>
   <div class="card">
-    <Graph {graph} />
+    <Graph {graph} layoutSpecification={forceLayoutViva} />
   </div>
   <div class="card">
-    <GraphD3 {graph} />
+    <Graph {graph} layoutSpecification={forceLayoutD3} />
   </div>
 </main>
 

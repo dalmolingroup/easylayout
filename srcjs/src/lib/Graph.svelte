@@ -1,14 +1,14 @@
 <script>
   import { onMount } from 'svelte';
   import Viva from 'vivagraphjs';
-  import forceLayoutViva from './forceLayoutViva';
 
   export let graph;
+  export let layoutSpecification;
 
   let container;
 
   onMount(() => {
-    const layout = forceLayoutViva(graph);
+    const layout = layoutSpecification(graph);
 
     const renderer = Viva.Graph.View.renderer(graph, {
       layout: layout,
