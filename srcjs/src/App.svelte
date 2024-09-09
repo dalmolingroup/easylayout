@@ -10,15 +10,20 @@
   const graph = graphGenerator.grid(5, 5);
 
   let selectedLayout = "viva";
+  let isSimulationRunning = true;
   let positions = [];
 
   nodePositions.subscribe(value => {
     positions = value;
   });
 
-  function toggleLayout() {
-    selectedLayout = selectedLayout === "viva" ? "d3" : "viva";
-  }
+function switchLayout() {
+  selectedLayout = selectedLayout === "viva" ? "d3" : "viva";
+}
+
+function toggleSimulation() {
+  isSimulationRunning = isSimulationRunning ? false : true;
+}
 </script>
 
 <main>
@@ -27,8 +32,11 @@
     <Counter />
   </div>
   <div class="card">
-    <button on:click={toggleLayout}>
-      Toggle Layout
+    <button on:click={switchLayout}>
+      Switch layout (now: {selectedLayout})
+    </button>
+    <button on:click={toggleSimulation}>
+      {isSimulationRunning ? "Pause" : "Continue"} simulation
     </button>
   </div>
   <div class="card">
