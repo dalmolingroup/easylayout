@@ -9,7 +9,8 @@
   const graphGenerator = Viva.Graph.generator();
   const graph = graphGenerator.grid(5, 5);
 
-  let selectedLayout = "viva";
+  let selectedLayoutName = "viva";
+  let availableLayouts = {"viva": forceLayoutViva, "d3": forceLayoutD3};
   let isSimulationRunning = true;
   let positions = [];
 
@@ -18,7 +19,7 @@
   });
 
   function switchLayout() {
-    selectedLayout = selectedLayout === "viva" ? "d3" : "viva";
+    selectedLayoutName = selectedLayoutName === "viva" ? "d3" : "viva";
   }
 
   function toggleSimulation() {
@@ -33,18 +34,16 @@
   </div>
   <div class="card">
     <button on:click={switchLayout}>
-      Switch layout (now: {selectedLayout})
+      Switch layout (now: {selectedLayoutName})
     </button>
     <button on:click={toggleSimulation}>
       {isSimulationRunning ? "Pause" : "Continue"} simulation
     </button>
   </div>
   <div class="card">
-    {#if selectedLayout === "viva"}
-      <Graph {graph} layoutSpecification={forceLayoutViva} {positions} />
-    {:else}
-      <Graph {graph} layoutSpecification={forceLayoutD3} {positions}/>
-    {/if}
+    {#key selectedLayoutName}
+      <Graph {graph} layoutSpecification={availableLayouts[selectedLayoutName]} {positions} />
+    {/key}
   </div>
 </main>
 
