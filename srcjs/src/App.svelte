@@ -1,20 +1,20 @@
 <script>
-  import Counter from './lib/Counter.svelte';
-  import Graph from './lib/Graph.svelte';
-  import Viva from 'vivagraphjs';
-  import forceLayoutViva from './lib/forceLayoutViva';
-  import forceLayoutD3 from './lib/forceLayoutD3';
-  import { nodePositions } from './store.js';
+  import Counter from "./lib/Counter.svelte";
+  import Graph from "./lib/Graph.svelte";
+  import Viva from "vivagraphjs";
+  import forceLayoutViva from "./lib/forceLayoutViva";
+  import forceLayoutD3 from "./lib/forceLayoutD3";
+  import { nodePositions } from "./store.js";
 
   const graphGenerator = Viva.Graph.generator();
   const graph = graphGenerator.grid(5, 5);
 
   let selectedLayoutName = "viva";
-  let availableLayouts = {"viva": forceLayoutViva, "d3": forceLayoutD3};
+  let availableLayouts = { viva: forceLayoutViva, d3: forceLayoutD3 };
   let isSimulationRunning = true;
   let positions = [];
 
-  nodePositions.subscribe(value => {
+  nodePositions.subscribe((value) => {
     positions = value;
   });
 
@@ -42,7 +42,11 @@
   </div>
   <div class="card">
     {#key selectedLayoutName}
-      <Graph {graph} layoutSpecification={availableLayouts[selectedLayoutName]} {positions} />
+      <Graph
+        {graph}
+        layoutSpecification={availableLayouts[selectedLayoutName]}
+        {positions}
+      />
     {/key}
   </div>
 </main>
