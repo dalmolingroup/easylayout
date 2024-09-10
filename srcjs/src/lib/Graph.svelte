@@ -13,6 +13,8 @@
 
   $: if (renderer && !$isSimulationRunning) {
     renderer.pause();
+  } else if (renderer && $isSimulationRunning) {
+    renderer.resume();
   }
   
   onMount(() => {
