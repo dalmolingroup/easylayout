@@ -2,3 +2,4 @@
 import { writable } from 'svelte/store';
 
 export const nodePositions = writable([]);
+export const isSimulationRunning = writable(true);

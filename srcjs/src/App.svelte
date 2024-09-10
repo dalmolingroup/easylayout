@@ -4,14 +4,13 @@
   import Viva from "vivagraphjs";
   import forceLayoutViva from "./lib/forceLayoutViva";
   import forceLayoutD3 from "./lib/forceLayoutD3";
-  import { nodePositions } from "./store.js";
+  import { nodePositions, isSimulationRunning } from "./store.js";
 
   const graphGenerator = Viva.Graph.generator();
   const graph = graphGenerator.grid(5, 5);
 
   let selectedLayoutName = "viva";
   let availableLayouts = { viva: forceLayoutViva, d3: forceLayoutD3 };
-  let isSimulationRunning = true;
   let positions = [];
 
   nodePositions.subscribe((value) => {
@@ -23,7 +22,7 @@
   }
 
   function toggleSimulation() {
-    isSimulationRunning = isSimulationRunning ? false : true;
+    $isSimulationRunning = !$isSimulationRunning;
   }
 </script>
 
@@ -37,7 +36,7 @@
       Switch layout (now: {selectedLayoutName})
     </button>
     <button on:click={toggleSimulation}>
-      {isSimulationRunning ? "Pause" : "Continue"} simulation
+      {$isSimulationRunning ? "Pause" : "Continue"} simulation
     </button>
   </div>
   <div class="card">

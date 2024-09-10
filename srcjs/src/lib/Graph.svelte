@@ -1,6 +1,6 @@
 <script>
   import { onMount, onDestroy } from 'svelte';
-  import { nodePositions } from '../store.js';
+  import { nodePositions, isSimulationRunning } from '../store.js';
   import Viva from 'vivagraphjs';
 
   export let graph;
@@ -9,6 +9,11 @@
 
   let container;
   let layout;
+  let renderer;
+
+  $: if (renderer && !$isSimulationRunning) {
+    renderer.pause();
+  }
   
   onMount(() => {
     layout = layoutSpecification(graph);
@@ -20,7 +25,7 @@
       });
     }
 
-    const renderer = Viva.Graph.View.renderer(graph, {
+    renderer = Viva.Graph.View.renderer(graph, {
       layout: layout,
       container: container,
       graphics: Viva.Graph.View.webglGraphics()
