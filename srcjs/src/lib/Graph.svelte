@@ -30,7 +30,9 @@
     renderer = Viva.Graph.View.renderer(graph, {
       layout: layout,
       container: container,
-      graphics: Viva.Graph.View.webglGraphics()
+      graphics: Viva.Graph.View.webglGraphics(),
+      renderLinks : true,
+      prerender  : true
     });
 
     renderer.run();
