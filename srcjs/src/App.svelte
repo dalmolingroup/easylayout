@@ -5,17 +5,13 @@
   import forceLayoutViva from "./lib/forceLayoutViva";
   import forceLayoutD3 from "./lib/forceLayoutD3";
   import { nodePositions, isSimulationRunning } from "./store.js";
+  import { get } from 'svelte/store'
 
   const graphGenerator = Viva.Graph.generator();
   const graph = graphGenerator.grid(5, 5);
 
   let selectedLayoutName = "viva";
   let availableLayouts = { viva: forceLayoutViva, d3: forceLayoutD3 };
-  let positions = [];
-
-  nodePositions.subscribe((value) => {
-    positions = value;
-  });
 
   function switchLayout() {
     selectedLayoutName = selectedLayoutName === "viva" ? "d3" : "viva";
@@ -42,9 +38,9 @@
   <div class="card">
     {#key selectedLayoutName}
       <Graph
-        {graph}
+        graph={graph}
         layoutSpecification={availableLayouts[selectedLayoutName]}
-        {positions}
+        positions={get(nodePositions)}
       />
     {/key}
   </div>
