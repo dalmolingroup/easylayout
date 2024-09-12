@@ -6,6 +6,7 @@
   import forceLayoutD3 from "./lib/forceLayoutD3";
   import { nodePositions, isSimulationRunning } from "./store.js";
   import { get } from "svelte/store";
+  import { onMount } from 'svelte';
 
   const graphGenerator = Viva.Graph.generator();
   const graph = graphGenerator.grid(5, 5);
@@ -20,6 +21,11 @@
   function toggleSimulation() {
     $isSimulationRunning = !$isSimulationRunning;
   }
+
+  onMount(() => {
+    console.log("Shiny:");
+    console.log(Shiny);
+  });
 </script>
 
 <main>
