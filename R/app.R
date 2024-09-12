@@ -1,8 +1,25 @@
 #' @export
-test <- function(){
+test <- function(graph) {
+  if (is.null(igraph::V(graph)$name)) {
+    igraph::V(graph)$name <- 0:(igraph::vcount(graph) - 1)
+  }
+
+  graph_json <- jsonlite::toJSON(list(
+    nodes = igraph::as_data_frame(graph, "vertices"),
+    links = igraph::as_data_frame(graph, "edges")
+  ))
 
   server <- function(input, output, session) {
-    session$sendCustomMessage(type = "dataTransferredFromServer", 1)
+    shiny::observeEvent(input$svelteAppMounted, {
+      print("svelteAppMounted:")
+      print(input$svelteAppMounted)
+      if (input$svelteAppMounted) {
+        session$sendCustomMessage(
+          type = "dataTransferredFromServer",
+          message = graph_json
+        )
+      }
+    })
   }
 
   shiny::addResourcePath("www", system.file("www", package = "easylayout"))

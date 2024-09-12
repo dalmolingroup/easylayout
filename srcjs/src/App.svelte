@@ -6,10 +6,10 @@
   import forceLayoutD3 from "./lib/forceLayoutD3";
   import { nodePositions, isSimulationRunning } from "./store.js";
   import { get } from "svelte/store";
-  import { onMount } from 'svelte';
+  import { onMount } from "svelte";
+  import { nodeLoadTransform, linkLoadTransform } from "./lib/customTransformFromRToViva";
 
-  const graphGenerator = Viva.Graph.generator();
-  const graph = graphGenerator.grid(5, 5);
+  let graph;
 
   let selectedLayoutName = "viva";
   let availableLayouts = { viva: forceLayoutViva, d3: forceLayoutD3 };
@@ -22,9 +22,30 @@
     $isSimulationRunning = !$isSimulationRunning;
   }
 
+  function handleShinyData(graph_json) {
+    console.log("Received Shiny data:");
+    console.log(graph_json);
+    if (import.meta.env.PROD) {
+      graph = Viva.Graph.serializer().loadFromJSON(
+        graph_json,
+        nodeLoadTransform,
+        linkLoadTransform,
+      );
+      globalThis.graph_json = graph_json;
+    } else {
+      graph = Viva.Graph.generator().grid(5, 5);
+    }
+  }
+
   onMount(() => {
-    console.log("Shiny:");
-    console.log(Shiny);
+    jQuery(document).on("shiny:connected", function () {
+      console.log("Shiny connected");
+      Shiny.setInputValue("svelteAppMounted", true);
+      Shiny.addCustomMessageHandler(
+        "dataTransferredFromServer",
+        handleShinyData,
+      );
+    });
   });
 </script>
 
@@ -42,13 +63,17 @@
     </button>
   </div>
   <div class="card">
-    {#key selectedLayoutName}
-      <Graph
-        graph={graph}
-        layoutSpecification={availableLayouts[selectedLayoutName]}
-        positions={get(nodePositions)}
-      />
-    {/key}
+    {#if graph}
+      {#key selectedLayoutName}
+        <Graph
+          {graph}
+          layoutSpecification={availableLayouts[selectedLayoutName]}
+          positions={get(nodePositions)}
+        />
+      {/key}
+    {:else}
+      <p>Loading graph...</p>
+    {/if}
   </div>
 </main>
 
