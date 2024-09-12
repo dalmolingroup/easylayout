@@ -7,5 +7,9 @@ test <- function(){
 
   shiny::addResourcePath("www", system.file("www", package = "easylayout"))
 
-  shiny::runGadget(shiny::shinyApp(ui = shiny::htmlTemplate(system.file("www/index.html", package = "easylayout")), server))
+  ui <- shiny::htmlTemplate(
+    filename = system.file("www/index.html", package = "easylayout")
+  )
+
+  shiny::runGadget(shiny::shinyApp(ui = ui, server))
 }
