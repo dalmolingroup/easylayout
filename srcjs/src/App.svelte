@@ -1,6 +1,7 @@
 <script>
   import Counter from "./lib/Counter.svelte";
   import Graph from "./lib/Graph.svelte";
+  import Editor from "./lib/Editor.svelte";
   import Viva from "vivagraphjs";
   import forceLayoutViva from "./lib/forceLayoutViva";
   import forceLayoutD3 from "./lib/forceLayoutD3";
@@ -72,6 +73,9 @@
     {:else}
       <p>Loading graph...</p>
     {/if}
+  </div>
+  <div class="card">
+    <Editor />
   </div>
 </main>
 
