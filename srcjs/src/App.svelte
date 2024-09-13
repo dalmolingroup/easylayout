@@ -22,19 +22,19 @@
     $isSimulationRunning = !$isSimulationRunning;
   }
 
-  function handleShinyData(graph_json) {
+  async function handleShinyData(graphJSON) {
     console.log("Received Shiny data:");
-    console.log(graph_json);
-    if (import.meta.env.PROD) {
-      graph = Viva.Graph.serializer().loadFromJSON(
-        graph_json,
-        nodeLoadTransform,
-        linkLoadTransform,
-      );
-      globalThis.graph_json = graph_json;
-    } else {
-      graph = Viva.Graph.generator().grid(5, 5);
+    console.log(graphJSON);
+    
+    if (import.meta.env.DEV) {
+      graphJSON = (await import('./lib/graphJSON.dev.js')).default;
     }
+    
+      graph = Viva.Graph.serializer().loadFromJSON(
+      graphJSON,
+      nodeLoadTransform(graphJSON),
+      linkLoadTransform(graphJSON),
+    );
   }
 
   onMount(() => {

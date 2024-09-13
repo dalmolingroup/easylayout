@@ -1,14 +1,29 @@
-export const nodeLoadTransform = (node) => {
-    return {
-        id: node["name"],
-        data: node
+export const nodeLoadTransform = (graph_json) => {
+    // No matter what the first column of the graph is,
+    // it's content will serve as the node ID
+    const firstNode = graph_json.nodes[0];
+    const firstColumnName = Object.keys(firstNode)[0];
+
+    return (node) => {
+        return {
+            id: "abc" + node[firstColumnName],
+            data: node
+        };
     };
 };
 
-export const linkLoadTransform = (link) => {
-    return {
-        fromId: link["from"],
-        toId: link["to"],
-        data: link
+export const linkLoadTransform = (graph_json) => {
+    // No matter what the first two columns of the graph are,
+    // their content will serve as "from" and "to" node IDs respectively
+    const firstLink = graph_json.links[0];
+    const firstColumnName = Object.keys(firstLink)[0];
+    const secondColumnName = Object.keys(firstLink)[1];
+
+    return (link) => {
+        return {
+            fromId: "abc" + link[firstColumnName],
+            toId: "abc" + link[secondColumnName],
+            data: link
+        };
     };
 };
