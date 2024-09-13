@@ -5,7 +5,7 @@
   import Viva from "vivagraphjs";
   import forceLayoutViva from "./lib/forceLayoutViva";
   import forceLayoutD3 from "./lib/forceLayoutD3";
-  import { isSimulationRunning } from "./store.js";
+  import { isSimulationRunning, isEditorMode } from "./store.js";
   import { onMount } from "svelte";
   import { nodeLoadTransform, linkLoadTransform } from "./lib/customTransformFromRToViva";
 
@@ -37,6 +37,10 @@
     );
   }
 
+  function toggleEditorMode() {
+    $isEditorMode = !$isEditorMode;
+  }
+
   onMount(() => {
     jQuery(document).on("shiny:connected", function () {
       console.log("Shiny connected");
@@ -55,27 +59,31 @@
     <Counter />
   </div>
   <div class="card">
-    <button on:click={switchLayout}>
-      Switch layout (now: {selectedLayoutName})
-    </button>
-    <button on:click={toggleSimulation}>
-      {$isSimulationRunning ? "Pause" : "Continue"} simulation
+    {#if !$isEditorMode}
+      <button on:click={switchLayout}>
+        Switch layout (now: {selectedLayoutName})
+      </button>
+      <button on:click={toggleSimulation}>
+        {$isSimulationRunning ? "Pause" : "Continue"} simulation
+      </button>
+    {/if}
+    <button on:click={toggleEditorMode}>
+      {$isEditorMode ? "Leave editor" : "Enter editor"}
     </button>
   </div>
   <div class="card">
-    {#if graph}
+    {#if graph && !$isEditorMode}
       {#key selectedLayoutName}
         <Graph
           {graph}
           layoutSpecification={availableLayouts[selectedLayoutName]}
         />
       {/key}
+    {:else if $isEditorMode}
+      <Editor />
     {:else}
       <p>Loading graph...</p>
     {/if}
-  </div>
-  <div class="card">
-    <Editor />
   </div>
 </main>
 
