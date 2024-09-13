@@ -6,7 +6,7 @@ export const nodeLoadTransform = (graph_json) => {
 
     return (node) => {
         return {
-            id: "abc" + node[firstColumnName],
+            id: node[firstColumnName],
             data: node
         };
     };
@@ -21,8 +21,8 @@ export const linkLoadTransform = (graph_json) => {
 
     return (link) => {
         return {
-            fromId: "abc" + link[firstColumnName],
-            toId: "abc" + link[secondColumnName],
+            fromId: link[firstColumnName],
+            toId: link[secondColumnName],
             data: link
         };
     };
