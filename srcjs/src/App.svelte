@@ -39,11 +39,11 @@
   onMount(() => {
     jQuery(document).on("shiny:connected", function () {
       console.log("Shiny connected");
-      Shiny.setInputValue("svelteAppMounted", true);
       Shiny.addCustomMessageHandler(
         "dataTransferredFromServer",
         handleShinyData,
       );
+      Shiny.setInputValue("svelteAppMounted", true);
     });
   });
 </script>
