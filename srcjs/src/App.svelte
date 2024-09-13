@@ -4,8 +4,7 @@
   import Viva from "vivagraphjs";
   import forceLayoutViva from "./lib/forceLayoutViva";
   import forceLayoutD3 from "./lib/forceLayoutD3";
-  import { nodePositions, isSimulationRunning } from "./store.js";
-  import { get } from "svelte/store";
+  import { isSimulationRunning } from "./store.js";
   import { onMount } from "svelte";
   import { nodeLoadTransform, linkLoadTransform } from "./lib/customTransformFromRToViva";
 
@@ -30,7 +29,7 @@
       graphJSON = (await import('./lib/graphJSON.dev.js')).default;
     }
     
-      graph = Viva.Graph.serializer().loadFromJSON(
+    graph = Viva.Graph.serializer().loadFromJSON(
       graphJSON,
       nodeLoadTransform(graphJSON),
       linkLoadTransform(graphJSON),
@@ -68,7 +67,6 @@
         <Graph
           {graph}
           layoutSpecification={availableLayouts[selectedLayoutName]}
-          positions={get(nodePositions)}
         />
       {/key}
     {:else}

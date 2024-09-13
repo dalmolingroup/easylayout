@@ -5,7 +5,6 @@
 
   export let graph;
   export let layoutSpecification;
-  export let positions;
 
   let container;
   let layout;
@@ -19,10 +18,12 @@
   
   onMount(() => {
     layout = layoutSpecification(graph);
+    globalThis.layout = layout;
 
-    if (positions.length !== 0) {
+    if ($nodePositions.size > 0) {
+      console.log($nodePositions);
       graph.forEachNode(node => {
-        let nodePosition = positions[node.id]
+        let nodePosition = $nodePositions.get(node.id)
         layout.setNodePosition(node.id, nodePosition.x, nodePosition.y);
       });
     }
@@ -39,12 +40,10 @@
   });
 
   onDestroy(() => {
-    let positions = [];
     graph.forEachNode(node => {
       let nodePosition = layout.getNodePosition(node.id);
-      positions.push({ x: nodePosition.x, y: nodePosition.y });
+      $nodePositions.set(node.id, { x: nodePosition.x, y: nodePosition.y });
     });
-    nodePositions.set(positions);
   });
 </script>
 

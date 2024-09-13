@@ -1,7 +1,7 @@
 #' @export
 test <- function(graph) {
   if (is.null(igraph::V(graph)$name)) {
-    igraph::V(graph)$name <- 0:(igraph::vcount(graph) - 1)
+    igraph::V(graph)$name <- as.character(1:igraph::vcount(graph))
   }
 
   graph_json <- jsonlite::toJSON(list(
