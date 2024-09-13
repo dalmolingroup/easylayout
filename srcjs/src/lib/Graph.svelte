@@ -21,7 +21,6 @@
     globalThis.layout = layout;
 
     if ($nodePositions.size > 0) {
-      console.log($nodePositions);
       graph.forEachNode(node => {
         let nodePosition = $nodePositions.get(node.id)
         layout.setNodePosition(node.id, nodePosition.x, nodePosition.y);
