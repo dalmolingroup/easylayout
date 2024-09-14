@@ -7,7 +7,7 @@
   let fabricCanvas;
   const offset = 200;
 
-  // fabricjs.github.io/docs/configuring-controls
+  // <disable-scaling src=fabricjs.github.io/docs/configuring-controls>
   // Removing all six scaling handles, keeping rotating handle
   ActiveSelection.createControls = () => {
     const controls = controlsUtils.createObjectDefaultControls();
@@ -30,6 +30,7 @@
     lockScalingX: true,
     lockScalingY: true,
   }
+  // </disable-scaling>
 
   onMount(() => {
     if ($nodePositions.size > 0) {
@@ -38,7 +39,7 @@
         stopContextMenu: true,
       });
 
-      // BEGIN: fabricjs.com/fabric-intro-part-5
+      // <zoom-and-pan src=fabricjs.com/fabric-intro-part-5>
       fabricCanvas.on('mouse:wheel', function(opt) {
         let delta = opt.e.deltaY;
         let zoom = fabricCanvas.getZoom();
@@ -77,7 +78,7 @@
         fabricCanvas.isDragging = false;
         fabricCanvas.selection = true;
       });
-      // END: fabricjs.com/fabric-intro-part-5
+      // </zoom-and-pan>
 
       for (let [nodeId, position] of $nodePositions) {
         let rect = new Rect({
