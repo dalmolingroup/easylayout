@@ -1,17 +1,55 @@
 <script>
   import { onMount, onDestroy } from "svelte";
-  import { Canvas, Rect } from "fabric";
+  import { Canvas, Rect, ActiveSelection, controlsUtils } from "fabric";
   import { nodePositions } from "../store.js";
 
   let canvas;
   let fabricCanvas;
   const offset = 200;
 
+  // fabricjs.github.io/docs/configuring-controls
+  // Removing all six scaling handles, keeping rotating handle
+  ActiveSelection.createControls = () => {
+    const controls = controlsUtils.createObjectDefaultControls();
+    delete controls.mr;
+    delete controls.mb;
+    delete controls.mb;
+    delete controls.ml;
+    delete controls.mt;
+    delete controls.tr;
+    delete controls.br;
+    delete controls.bl;
+    delete controls.tl;
+    return { controls: controls }
+  };
+
+  // Since the scaling handles are hidden,
+  // this part is not stricly necessary
+  ActiveSelection.ownDefaults = {
+    ...ActiveSelection.ownDefaults,
+    lockScalingX: true,
+    lockScalingY: true,
+  }
+
   onMount(() => {
+    console.log(ActiveSelection.ownDefaults);
     if ($nodePositions.size > 0) {
       fabricCanvas = new Canvas(canvas, {
         fireRightClick: true,
         stopContextMenu: true,
+      });
+
+      fabricCanvas.on('selection:created',function(opt){
+        console.log(opt);
+        
+        // opt.e.target.set({
+        //   lockScalingX: true,
+        //   lockScalingY: true,
+        // });
+      });
+
+      fabricCanvas.on('object:rotating', function(opt) {
+        console.log(opt.e);
       });
 
       // BEGIN: fabricjs.com/fabric-intro-part-5
@@ -63,6 +101,7 @@
           width: 10,
           height: 10,
           angle: 90,
+          hasControls: false,
         });
         fabricCanvas.add(rect);
       }
