@@ -75,7 +75,7 @@
         />
       {/key}
     {:else if $isEditorMode}
-      <Editor />
+      <Editor {graph} />
     {:else}
       <p>Loading graph...</p>
     {/if}

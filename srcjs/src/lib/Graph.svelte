@@ -1,7 +1,7 @@
 <script>
-  import { onMount, onDestroy } from 'svelte';
-  import { nodePositions, isSimulationRunning } from '../store.js';
-  import Viva from 'vivagraphjs';
+  import { onMount, onDestroy } from "svelte";
+  import { isSimulationRunning } from "../store.js";
+  import Viva from "vivagraphjs";
 
   export let graph;
   export let layoutSpecification;
@@ -15,33 +15,32 @@
   } else if (renderer && $isSimulationRunning) {
     renderer.resume();
   }
-  
+
   onMount(() => {
     layout = layoutSpecification(graph);
-    globalThis.layout = layout;
 
-    if ($nodePositions.size > 0) {
-      graph.forEachNode(node => {
-        let nodePosition = $nodePositions.get(node.id)
-        layout.setNodePosition(node.id, nodePosition.x, nodePosition.y);
-      });
-    }
+    graph.forEachNode((node) => {
+      // Ideally we don't need this check because the nodes
+      // should always have precomputed positions
+      if (node.x) layout.setNodePosition(node.id, node.x, node.y);
+    });
 
     renderer = Viva.Graph.View.renderer(graph, {
       layout: layout,
       container: container,
       graphics: Viva.Graph.View.webglGraphics(),
-      renderLinks : true,
-      prerender  : true
+      renderLinks: true,
+      prerender: true,
     });
 
     renderer.run();
   });
 
   onDestroy(() => {
-    graph.forEachNode(node => {
+    graph.forEachNode((node) => {
       let nodePosition = layout.getNodePosition(node.id);
-      $nodePositions.set(node.id, { x: nodePosition.x, y: nodePosition.y });
+      node.x = nodePosition.x;
+      node.y = nodePosition.y;
     });
   });
 </script>
