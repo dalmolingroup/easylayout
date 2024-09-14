@@ -1,5 +1,4 @@
 <script>
-  import Counter from "./lib/Counter.svelte";
   import Graph from "./lib/Graph.svelte";
   import Editor from "./lib/Editor.svelte";
   import Viva from "vivagraphjs";
@@ -54,10 +53,6 @@
 </script>
 
 <main>
-  <h1>Vite + Svelte</h1>
-  <div class="card">
-    <Counter />
-  </div>
   <div class="card">
     {#if !$isEditorMode}
       <button on:click={switchLayout}>
