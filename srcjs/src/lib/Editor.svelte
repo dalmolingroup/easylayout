@@ -32,24 +32,10 @@
   }
 
   onMount(() => {
-    console.log(ActiveSelection.ownDefaults);
     if ($nodePositions.size > 0) {
       fabricCanvas = new Canvas(canvas, {
         fireRightClick: true,
         stopContextMenu: true,
-      });
-
-      fabricCanvas.on('selection:created',function(opt){
-        console.log(opt);
-        
-        // opt.e.target.set({
-        //   lockScalingX: true,
-        //   lockScalingY: true,
-        // });
-      });
-
-      fabricCanvas.on('object:rotating', function(opt) {
-        console.log(opt.e);
       });
 
       // BEGIN: fabricjs.com/fabric-intro-part-5
