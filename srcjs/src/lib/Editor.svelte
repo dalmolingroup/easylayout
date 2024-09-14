@@ -7,6 +7,7 @@
   let canvas;
   let fabricCanvas;
   const offset = 200;
+  const linesByLinkId = new Map();
 
   // <disable-scaling src=fabricjs.github.io/docs/configuring-controls>
   // Removing all six scaling handles, keeping rotating handle
@@ -37,6 +38,7 @@
     fabricCanvas = new Canvas(canvas, {
       fireRightClick: true,
       stopContextMenu: true,
+      renderOnAddRemove: false,
     });
 
     // <zoom-and-pan src=fabricjs.com/fabric-intro-part-5>
@@ -88,7 +90,9 @@
         strokeWidth: 2,
         selectable: false,
         evented: false,
+        objectCaching: false,
       });
+      linesByLinkId.set(link.id, line);
       fabricCanvas.add(line);
     });
 
@@ -103,7 +107,20 @@
         hasControls: false,
         originX: "center",
         originY: "center",
+        objectCaching: false,
       });
+      
+      rect.on("moving", () => {
+        node.links.forEach(link => {
+          const nodeLines = linesByLinkId.get(link.id);
+          if (link.fromId === node.id) {
+            nodeLines.set({ x1: rect.left, y1: rect.top });
+          } else {
+            nodeLines.set({ x2: rect.left, y2: rect.top });
+          }
+        })
+      });
+
       fabricCanvas.add(rect);
     });
 
