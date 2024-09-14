@@ -42,6 +42,15 @@
       node.x = nodePosition.x;
       node.y = nodePosition.y;
     });
+    graph.forEachLink((link) => {
+      let linkPositions = layout.getLinkPosition(link.id);
+      link.coords = [
+        linkPositions.from.x,
+        linkPositions.from.y,
+        linkPositions.to.x,
+        linkPositions.to.y
+      ];
+    });
   });
 </script>
 

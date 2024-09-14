@@ -1,6 +1,6 @@
 <script>
   import { onMount, onDestroy } from "svelte";
-  import { Canvas, Rect, ActiveSelection, controlsUtils } from "fabric";
+  import { Canvas, Rect, Line, ActiveSelection, controlsUtils } from "fabric";
 
   export let graph;
 
@@ -80,8 +80,20 @@
     });
     // </zoom-and-pan>
 
+    graph.forEachLink((link) => {
+      const coords = link.coords.map(coord => coord + offset);
+      const line = new Line(coords, {
+        fill: null,
+        stroke: "#808080",
+        strokeWidth: 2,
+        selectable: false,
+        evented: false,
+      });
+      fabricCanvas.add(line);
+    });
+
     graph.forEachNode((node) => {
-      let rect = new Rect({
+      const rect = new Rect({
         left: node.x + offset,
         top: node.y + offset,
         fill: "#0080ff",
@@ -89,6 +101,8 @@
         height: 10,
         angle: 90,
         hasControls: false,
+        originX: "center",
+        originY: "center",
       });
       fabricCanvas.add(rect);
     });
