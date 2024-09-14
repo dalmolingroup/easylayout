@@ -87,6 +87,7 @@ export default function d3Layout(graph) {
   
       pinNode: function() {
         // TODO: implement me
+        // https://github.com/vasturiano/react-force-graph/issues/95#issuecomment-545571055
       },
   
       dispose: function() {
