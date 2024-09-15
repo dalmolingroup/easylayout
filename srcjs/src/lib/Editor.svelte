@@ -1,6 +1,6 @@
 <script>
   import { onMount, onDestroy } from "svelte";
-  import { Canvas, Rect, Line, ActiveSelection, controlsUtils } from "fabric";
+  import { Canvas, Rect, Line, Group, ActiveSelection, controlsUtils, util, Point } from "fabric";
 
   export let graph;
 
@@ -31,8 +31,15 @@
     ...ActiveSelection.ownDefaults,
     lockScalingX: true,
     lockScalingY: true,
+    subTargetCheck: true,
+    interactive: true,
   };
   // </disable-scaling>
+  Group.ownDefaults = {
+    ...Group.ownDefaults,
+    subTargetCheck: true,
+    interactive: true,
+  };
 
   onMount(() => {
     fabricCanvas = new Canvas(canvas, {
@@ -82,6 +89,46 @@
     });
     // </zoom-and-pan>
 
+    // TODO: Refactor and rename variables for clarity
+    // fabricjs.com/using-transformations
+    // fabricjs.github.io/docs/understanding-fabricjs/transformations
+    // davelage.com/posts/fabric-selection-group-positioning
+    // medium.com/@luizzappa/the-transformation-matrix-in-fabric-js-fb7f733d0624
+    // OBRIGADO @luizzappa VC MERECE UM BEIJO
+    fabricCanvas.on("object:moving", (opt) => {
+      const isGroup = "_objects" in opt.target;
+      if (isGroup) {
+        const objectsInsideGroup = opt.target._objects;
+
+        objectsInsideGroup.forEach((obj) => {
+          const finalPointRelative = new Point(obj.left, obj.top);
+          const finalPointAbsolute = finalPointRelative.transform(opt.target.calcTransformMatrix());
+
+          obj.linksDeparting.forEach(linkId => {
+            const nodeLine = linesByLinkId.get(linkId);
+
+            nodeLine.set({ x1: finalPointAbsolute.x, y1: finalPointAbsolute.y });
+            // nodeLine.set({ x1: obj.left + groupLeft, y1: obj.top + groupTop });
+          })
+          obj.linksArriving.forEach(linkId => {
+            const nodeLine = linesByLinkId.get(linkId);
+
+            nodeLine.set({ x2: finalPointAbsolute.x, y2: finalPointAbsolute.y });
+            // nodeLine.set({ x2: obj.left + groupLeft, y2: obj.top + groupTop });
+          })
+        });
+      } else {
+        opt.target.linksDeparting.forEach(linkId => {
+          const nodeLine = linesByLinkId.get(linkId);
+          nodeLine.set({ x1: opt.target.left, y1: opt.target.top });
+        })
+        opt.target.linksArriving.forEach(linkId => {
+          const nodeLine = linesByLinkId.get(linkId);
+          nodeLine.set({ x2: opt.target.left, y2: opt.target.top });
+        });
+      }
+    });
+
     graph.forEachLink((link) => {
       const coords = link.coords.map(coord => coord + offset);
       const line = new Line(coords, {
@@ -97,6 +144,17 @@
     });
 
     graph.forEachNode((node) => {
+      const linksDeparting = [];
+      const linksArriving = [];
+
+      node.links.forEach(link => {
+        if (link.fromId === node.id) {
+          linksDeparting.push(link.id);
+        } else {
+          linksArriving.push(link.id);
+        }
+      });
+
       const rect = new Rect({
         left: node.x + offset,
         top: node.y + offset,
@@ -108,17 +166,8 @@
         originX: "center",
         originY: "center",
         objectCaching: false,
-      });
-      
-      rect.on("moving", () => {
-        node.links.forEach(link => {
-          const nodeLines = linesByLinkId.get(link.id);
-          if (link.fromId === node.id) {
-            nodeLines.set({ x1: rect.left, y1: rect.top });
-          } else {
-            nodeLines.set({ x2: rect.left, y2: rect.top });
-          }
-        })
+        linksDeparting: linksDeparting,
+        linksArriving: linksArriving,
       });
 
       fabricCanvas.add(rect);
