@@ -54,7 +54,7 @@
   });
 </script>
 
-<div bind:this={container} style="width: 500px; height: 400px;"></div>
+<div bind:this={container} style="width: 100%; height: 100%;"></div>
 
 <style>
 </style>
