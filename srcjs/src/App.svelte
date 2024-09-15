@@ -18,14 +18,18 @@
   import { Label, Select, Range } from "flowbite-svelte";
 
   let graph;
-
-  let minmaxValue = 0;
+  let layoutInstance;
 
   let selectedLayoutName = "viva";
 
-  $: selectedLayout = layoutSettings.find(
-    (l) => l.value === selectedLayoutName,
-  );
+  $: selectedLayout = layoutSettings.find((l) => l.value === selectedLayoutName);
+  $: if (graph) {
+    let settings = {};
+    selectedLayout.settings.forEach((setting) => {
+      settings[setting.id] = setting.value;
+    });
+    layoutInstance = selectedLayout.spec(graph, settings);
+  };
 
   function toggleSimulation() {
     $isSimulationRunning = !$isSimulationRunning;
@@ -77,19 +81,9 @@
   <div class="h-full px-3 py-4 overflow-hidden bg-gray-50 dark:bg-gray-800">
     <ul class="space-y-2 font-medium text-lg">
       <li>
-        <p
-          class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white group"
-        >
-          <svg
-            class="w-6 h-6 text-gray-500 dark:text-gray-400"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="currentColor"
-            viewBox="0 0 22 21"
-          >
-            <path
-              d="M10.83 5a3.001 3.001 0 0 0-5.66 0H4a1 1 0 1 0 0 2h1.17a3.001 3.001 0 0 0 5.66 0H20a1 1 0 1 0 0-2h-9.17ZM4 11h9.17a3.001 3.001 0 0 1 5.66 0H20a1 1 0 1 1 0 2h-1.17a3.001 3.001 0 0 1-5.66 0H4a1 1 0 1 1 0-2Zm1.17 6H4a1 1 0 1 0 0 2h1.17a3.001 3.001 0 0 0 5.66 0H20a1 1 0 1 0 0-2h-9.17a3.001 3.001 0 0 0-5.66 0Z"
-            />
+        <p class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white group">
+          <svg class="w-6 h-6 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 21">
+            <path d="M10.83 5a3.001 3.001 0 0 0-5.66 0H4a1 1 0 1 0 0 2h1.17a3.001 3.001 0 0 0 5.66 0H20a1 1 0 1 0 0-2h-9.17ZM4 11h9.17a3.001 3.001 0 0 1 5.66 0H20a1 1 0 1 1 0 2h-1.17a3.001 3.001 0 0 1-5.66 0H4a1 1 0 1 1 0-2Zm1.17 6H4a1 1 0 1 0 0 2h1.17a3.001 3.001 0 0 0 5.66 0H20a1 1 0 1 0 0-2h-9.17a3.001 3.001 0 0 0-5.66 0Z"/>
           </svg>
           <span class="ms-3">Settings</span>
         </p>
@@ -115,25 +109,17 @@
         out:fly={{ delay: 0, duration: 200 }}
         in:fly={{ delay: 250, duration: 200 }}
       >
-        <li>
-          <Label>Spring length</Label>
-          <Range
-            id="range-minmax"
-            min="0"
-            max="10"
-            bind:value={minmaxValue}
-            size="sm"
-          />
-        </li>
         {#each selectedLayout.settings as setting}
           <li>
             <Label>{setting.name}</Label>
             <Range
+              size="sm"
+              id={setting.id}
               min={setting.min}
               max={setting.max}
               value={setting.value}
               step={setting.step}
-              size="sm"
+              on:change={setting.effectorFn(layoutInstance, setting.id)}
             />
           </li>
         {/each}
@@ -158,7 +144,7 @@
   <div class="flex flex-grow bg-yellow-100">
     {#if graph && !$isEditorMode}
       {#key selectedLayoutName}
-        <Graph {graph} layoutSpecification={selectedLayout.spec} />
+        <Graph {graph} layout={layoutInstance} />
       {/key}
     {:else if $isEditorMode}
       <Editor {graph} />

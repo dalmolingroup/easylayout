@@ -4,10 +4,9 @@
   import Viva from "vivagraphjs";
 
   export let graph;
-  export let layoutSpecification;
+  export let layout;
 
   let container;
-  let layout;
   let renderer;
 
   $: if (renderer && !$isSimulationRunning) {
@@ -17,8 +16,6 @@
   }
 
   onMount(() => {
-    layout = layoutSpecification(graph);
-
     graph.forEachNode((node) => {
       // Ideally we don't need this check because the nodes
       // should always have precomputed positions
