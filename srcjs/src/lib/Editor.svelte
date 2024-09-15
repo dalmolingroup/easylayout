@@ -40,6 +40,46 @@
     lockScalingY: true,
   };
 
+  function updateLines(opt) {
+    const isGroup = "_objects" in opt.target;
+    if (isGroup) {
+      const objectsInsideGroup = opt.target._objects;
+
+      objectsInsideGroup.forEach((obj) => {
+        const finalPointRelative = new Point(obj.left, obj.top);
+        const finalPointAbsolute = finalPointRelative.transform(
+          opt.target.calcTransformMatrix(),
+        );
+
+        obj.linksDeparting.forEach((linkId) => {
+          const nodeLine = linesByLinkId.get(linkId);
+
+          nodeLine.set({
+            x1: finalPointAbsolute.x,
+            y1: finalPointAbsolute.y,
+          });
+        });
+        obj.linksArriving.forEach((linkId) => {
+          const nodeLine = linesByLinkId.get(linkId);
+
+          nodeLine.set({
+            x2: finalPointAbsolute.x,
+            y2: finalPointAbsolute.y,
+          });
+        });
+      });
+    } else {
+      opt.target.linksDeparting.forEach((linkId) => {
+        const nodeLine = linesByLinkId.get(linkId);
+        nodeLine.set({ x1: opt.target.left, y1: opt.target.top });
+      });
+      opt.target.linksArriving.forEach((linkId) => {
+        const nodeLine = linesByLinkId.get(linkId);
+        nodeLine.set({ x2: opt.target.left, y2: opt.target.top });
+      });
+    }
+  }
+
   onMount(() => {
     fabricCanvas = new Canvas(canvas, {
       fireRightClick: true,
@@ -93,46 +133,9 @@
     // davelage.com/posts/fabric-selection-group-positioning
     // medium.com/@luizzappa/the-transformation-matrix-in-fabric-js-fb7f733d0624
     // OBRIGADO @luizzappa VC MERECE UM BEIJO
-    fabricCanvas.on("object:moving", (opt) => {
-      const isGroup = "_objects" in opt.target;
-      if (isGroup) {
-        const objectsInsideGroup = opt.target._objects;
-
-        objectsInsideGroup.forEach((obj) => {
-          const finalPointRelative = new Point(obj.left, obj.top);
-          const finalPointAbsolute = finalPointRelative.transform(
-            opt.target.calcTransformMatrix(),
-          );
-
-          obj.linksDeparting.forEach((linkId) => {
-            const nodeLine = linesByLinkId.get(linkId);
-
-            nodeLine.set({
-              x1: finalPointAbsolute.x,
-              y1: finalPointAbsolute.y,
-            });
-            // nodeLine.set({ x1: obj.left + groupLeft, y1: obj.top + groupTop });
-          });
-          obj.linksArriving.forEach((linkId) => {
-            const nodeLine = linesByLinkId.get(linkId);
-
-            nodeLine.set({
-              x2: finalPointAbsolute.x,
-              y2: finalPointAbsolute.y,
-            });
-            // nodeLine.set({ x2: obj.left + groupLeft, y2: obj.top + groupTop });
-          });
-        });
-      } else {
-        opt.target.linksDeparting.forEach((linkId) => {
-          const nodeLine = linesByLinkId.get(linkId);
-          nodeLine.set({ x1: opt.target.left, y1: opt.target.top });
-        });
-        opt.target.linksArriving.forEach((linkId) => {
-          const nodeLine = linesByLinkId.get(linkId);
-          nodeLine.set({ x2: opt.target.left, y2: opt.target.top });
-        });
-      }
+    fabricCanvas.on({
+      "object:moving": updateLines,
+      "object:rotating": updateLines,
     });
 
     graph.forEachLink((link) => {
