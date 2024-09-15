@@ -12,19 +12,6 @@
     linkLoadTransform,
   } from "./lib/customTransformFromRToViva";
 
-  // Sidebar imports
-  import {
-    Sidebar,
-    SidebarGroup,
-    SidebarWrapper,
-    Button,
-    CloseButton,
-    Label,
-    Input,
-    Textarea,
-  } from "flowbite-svelte";
-  import { ChartPieSolid } from "flowbite-svelte-icons";
-
   // Speed dial imports
   import { fly } from "svelte/transition";
 
@@ -78,55 +65,6 @@
     });
   });
 </script>
-
-<!-- {#if sidebarExpanded}
-<div class="fixed z-50 top-0 left-0 w-full" transition:fly={{ x: "-256px" }}>
-  <Sidebar asideClass="w-64">
-    <SidebarWrapper>
-      <SidebarGroup>
-        <div class="flex items-center">
-          <h5 id="drawer-label" class="inline-flex items-center mb-6 text-base font-semibold text-gray-500 uppercase dark:text-gray-400">
-            <ChartPieSolid class="w-5 h-5 me-2.5" />Contact us
-          </h5>
-          <CloseButton on:click={toggleSidebar} class="mb-4 dark:text-white" />
-        </div>
-        <form action="#" class="mb-6">
-          <div class="mb-6">
-            <Label for="email" class="block mb-2">Your email</Label>
-            <Input id="email" name="email" required placeholder="name@company.com" />
-          </div>
-          <div class="mb-6">
-            <Label for="subject" class="block mb-2">Subject</Label>
-            <Input id="subject" name="subject" required placeholder="Let us know how we can help you" />
-          </div>
-          <div class="mb-6">
-            <Label for="message" class="mb-2">Your message</Label>
-            <Textarea id="message" placeholder="Your message..." rows="4" name="message" />
-          </div>
-          <Button type="submit" class="w-full">Send message</Button>
-        </form>
-      </SidebarGroup>
-    </SidebarWrapper>
-  </Sidebar>
-</div>
-{:else}
-<div class="fixed z-50 top-0 left-0 w-full" transition:fly={{ x: "-256px" }}>
-  <Sidebar asideClass="w-12">
-    <SidebarWrapper>
-      <SidebarGroup>
-        <div class="flex items-center">
-          <h5 id="drawer-label" class="inline-flex items-center mb-6 text-base font-semibold text-gray-500 uppercase dark:text-gray-400">
-            <ChartPieSolid class="w-5 h-5 me-2.5" />Contact us
-          </h5>
-          <CloseButton on:click={toggleSidebar} class="mb-4 dark:text-white" />
-        </div>
-        <div >
-        </div>
-      </SidebarGroup>
-    </SidebarWrapper>
-  </Sidebar>
-</div>
-{/if} -->
 
 <aside
   id="collapsed-sidebar"
