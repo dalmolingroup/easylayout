@@ -3,8 +3,7 @@
   import Graph from "./lib/Graph.svelte";
   import Editor from "./lib/Editor.svelte";
   import Viva from "vivagraphjs";
-  import forceLayoutViva from "./lib/forceLayoutViva";
-  import forceLayoutD3 from "./lib/forceLayoutD3";
+  import layoutSettings from "./lib/layoutSettings.js";
   import { isSimulationRunning, isEditorMode } from "./store.js";
   import { onMount } from "svelte";
   import {
@@ -15,14 +14,18 @@
   // Speed dial imports
   import { fly } from "svelte/transition";
 
+  // Select imports
+  import { Label, Select, Range } from "flowbite-svelte";
+
   let graph;
 
-  let selectedLayoutName = "viva";
-  let availableLayouts = { viva: forceLayoutViva, d3: forceLayoutD3 };
+  let minmaxValue = 0;
 
-  function switchLayout() {
-    selectedLayoutName = selectedLayoutName === "viva" ? "d3" : "viva";
-  }
+  let selectedLayoutName = "viva";
+
+  $: selectedLayout = layoutSettings.find(
+    (l) => l.value === selectedLayoutName,
+  );
 
   function toggleSimulation() {
     $isSimulationRunning = !$isSimulationRunning;
@@ -67,96 +70,81 @@
 </script>
 
 <aside
-  id="collapsed-sidebar"
-  class="fixed top-0 left-0 z-40 w-14 h-screen"
+  id="expanded-sidebar"
+  class="fixed top-0 left-0 z-40 w-48 h-screen overflow-hidden"
   aria-label="Sidebar"
 >
-  <div class="h-full px-2 py-2 overflow-y-auto bg-gray-50 dark:bg-gray-800">
-    <ul class="space-y-2 font-medium">
+  <div class="h-full px-3 py-4 overflow-hidden bg-gray-50 dark:bg-gray-800">
+    <ul class="space-y-2 font-medium text-lg">
       <li>
-        <span
+        <p
           class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white group"
         >
           <svg
-            class="flex-shrink-0 w-5 h-5 text-gray-500 dark:text-gray-400"
+            class="w-6 h-6 text-gray-500 dark:text-gray-400"
             aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
             fill="currentColor"
-            viewBox="0 0 24 24"
+            viewBox="0 0 22 21"
           >
             <path
               d="M10.83 5a3.001 3.001 0 0 0-5.66 0H4a1 1 0 1 0 0 2h1.17a3.001 3.001 0 0 0 5.66 0H20a1 1 0 1 0 0-2h-9.17ZM4 11h9.17a3.001 3.001 0 0 1 5.66 0H20a1 1 0 1 1 0 2h-1.17a3.001 3.001 0 0 1-5.66 0H4a1 1 0 1 1 0-2Zm1.17 6H4a1 1 0 1 0 0 2h1.17a3.001 3.001 0 0 0 5.66 0H20a1 1 0 1 0 0-2h-9.17a3.001 3.001 0 0 0-5.66 0Z"
             />
           </svg>
-        </span>
+          <span class="ms-3">Settings</span>
+        </p>
       </li>
     </ul>
-    <ul class="pt-4 mt-4 space-y-2 font-medium border-t border-gray-200 dark:border-gray-700">
-      <li>
-        <a
-          href="#"
-          class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
-        >
-          <svg
-            class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              d="M10.83 5a3.001 3.001 0 0 0-5.66 0H4a1 1 0 1 0 0 2h1.17a3.001 3.001 0 0 0 5.66 0H20a1 1 0 1 0 0-2h-9.17ZM4 11h9.17a3.001 3.001 0 0 1 5.66 0H20a1 1 0 1 1 0 2h-1.17a3.001 3.001 0 0 1-5.66 0H4a1 1 0 1 1 0-2Zm1.17 6H4a1 1 0 1 0 0 2h1.17a3.001 3.001 0 0 0 5.66 0H20a1 1 0 1 0 0-2h-9.17a3.001 3.001 0 0 0-5.66 0Z"
-            />
-          </svg>
-        </a>
-      </li>
-      <li>
-        <a
-          href="#"
-          class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
-        >
-          <svg
-            class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="currentColor"
-            viewBox="0 0 20 18"
-          >
-            <path
-              d="M14 2a3.963 3.963 0 0 0-1.4.267 6.439 6.439 0 0 1-1.331 6.638A4 4 0 1 0 14 2Zm1 9h-1.264A6.957 6.957 0 0 1 15 15v2a2.97 2.97 0 0 1-.184 1H19a1 1 0 0 0 1-1v-1a5.006 5.006 0 0 0-5-5ZM6.5 9a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9ZM8 10H5a5.006 5.006 0 0 0-5 5v2a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-2a5.006 5.006 0 0 0-5-5Z"
-            />
-          </svg>
-        </a>
-      </li>
-      <li>
-        <a
-          href="#"
-          class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
-        >
-          <svg
-            class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="currentColor"
-            viewBox="0 0 18 20"
-          >
-            <path
-              d="M17 5.923A1 1 0 0 0 16 5h-3V4a4 4 0 1 0-8 0v1H2a1 1 0 0 0-1 .923L.086 17.846A2 2 0 0 0 2.08 20h13.84a2 2 0 0 0 1.994-2.153L17 5.923ZM7 9a1 1 0 0 1-2 0V7h2v2Zm0-5a2 2 0 1 1 4 0v1H7V4Zm6 5a1 1 0 1 1-2 0V7h2v2Z"
-            />
-          </svg>
-        </a>
+    <ul
+      class="pt-4 mt-4 space-y-2 font-medium border-t border-gray-200 dark:border-gray-700"
+    >
+      <li class="mb-4">
+        <Label>
+          Layout algorithm
+          <Select
+            class="mt-2"
+            items={layoutSettings}
+            bind:value={selectedLayoutName}
+            placeholder=""
+          />
+        </Label>
       </li>
     </ul>
+    {#key selectedLayoutName}
+      <ul
+        out:fly={{ delay: 0, duration: 200 }}
+        in:fly={{ delay: 250, duration: 200 }}
+      >
+        <li>
+          <Label>Spring length</Label>
+          <Range
+            id="range-minmax"
+            min="0"
+            max="10"
+            bind:value={minmaxValue}
+            size="sm"
+          />
+        </li>
+        {#each selectedLayout.settings as setting}
+          <li>
+            <Label>{setting.name}</Label>
+            <Range
+              min={setting.min}
+              max={setting.max}
+              value={setting.value}
+              step={setting.step}
+              size="sm"
+            />
+          </li>
+        {/each}
+      </ul>
+    {/key}
   </div>
 </aside>
 
 <main class="container flex flex-col h-screen">
-  <div class="fixed bg-cyan-400">
+  <div class="fixed top-0 right-0 bg-cyan-400">
     {#if !$isEditorMode}
-      <button on:click={switchLayout}>
-        Switch layout (now: {selectedLayoutName})
-      </button>
-
       <button on:click={toggleSimulation}>
         {$isSimulationRunning ? "Pause" : "Continue"} simulation
       </button>
@@ -170,10 +158,7 @@
   <div class="flex flex-grow bg-yellow-100">
     {#if graph && !$isEditorMode}
       {#key selectedLayoutName}
-        <Graph
-          {graph}
-          layoutSpecification={availableLayouts[selectedLayoutName]}
-        />
+        <Graph {graph} layoutSpecification={selectedLayout.spec} />
       {/key}
     {:else if $isEditorMode}
       <Editor {graph} />
