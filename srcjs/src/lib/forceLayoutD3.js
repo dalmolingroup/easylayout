@@ -34,9 +34,10 @@ export default function d3Layout(graph) {
     })
   
     var simulation = forceSimulation(nodes)
-        .force("charge", forceManyBody().strength(settings.gravity))
+        .force("charge", forceManyBody()
+          .strength(settings.gravity))
         .force("link", forceLink(links)
-          .strength(settings.springCoeff)
+          // .strength(settings.springCoeff)
           .distance(settings.springLength)
           .iterations(settings.springIterations)
         );
