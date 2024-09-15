@@ -1,6 +1,13 @@
 <script>
   import { onMount, onDestroy } from "svelte";
-  import { Canvas, Rect, Line, Group, ActiveSelection, controlsUtils, util, Point } from "fabric";
+  import {
+    Canvas,
+    Rect,
+    Line,
+    ActiveSelection,
+    controlsUtils,
+    Point,
+  } from "fabric";
 
   export let graph;
 
@@ -31,21 +38,12 @@
     ...ActiveSelection.ownDefaults,
     lockScalingX: true,
     lockScalingY: true,
-    subTargetCheck: true,
-    interactive: true,
-  };
-  // </disable-scaling>
-  Group.ownDefaults = {
-    ...Group.ownDefaults,
-    subTargetCheck: true,
-    interactive: true,
   };
 
   onMount(() => {
     fabricCanvas = new Canvas(canvas, {
       fireRightClick: true,
       stopContextMenu: true,
-      renderOnAddRemove: false,
     });
 
     // <zoom-and-pan src=fabricjs.com/fabric-intro-part-5>
@@ -102,27 +100,35 @@
 
         objectsInsideGroup.forEach((obj) => {
           const finalPointRelative = new Point(obj.left, obj.top);
-          const finalPointAbsolute = finalPointRelative.transform(opt.target.calcTransformMatrix());
+          const finalPointAbsolute = finalPointRelative.transform(
+            opt.target.calcTransformMatrix(),
+          );
 
-          obj.linksDeparting.forEach(linkId => {
+          obj.linksDeparting.forEach((linkId) => {
             const nodeLine = linesByLinkId.get(linkId);
 
-            nodeLine.set({ x1: finalPointAbsolute.x, y1: finalPointAbsolute.y });
+            nodeLine.set({
+              x1: finalPointAbsolute.x,
+              y1: finalPointAbsolute.y,
+            });
             // nodeLine.set({ x1: obj.left + groupLeft, y1: obj.top + groupTop });
-          })
-          obj.linksArriving.forEach(linkId => {
+          });
+          obj.linksArriving.forEach((linkId) => {
             const nodeLine = linesByLinkId.get(linkId);
 
-            nodeLine.set({ x2: finalPointAbsolute.x, y2: finalPointAbsolute.y });
+            nodeLine.set({
+              x2: finalPointAbsolute.x,
+              y2: finalPointAbsolute.y,
+            });
             // nodeLine.set({ x2: obj.left + groupLeft, y2: obj.top + groupTop });
-          })
+          });
         });
       } else {
-        opt.target.linksDeparting.forEach(linkId => {
+        opt.target.linksDeparting.forEach((linkId) => {
           const nodeLine = linesByLinkId.get(linkId);
           nodeLine.set({ x1: opt.target.left, y1: opt.target.top });
-        })
-        opt.target.linksArriving.forEach(linkId => {
+        });
+        opt.target.linksArriving.forEach((linkId) => {
           const nodeLine = linesByLinkId.get(linkId);
           nodeLine.set({ x2: opt.target.left, y2: opt.target.top });
         });
@@ -130,7 +136,7 @@
     });
 
     graph.forEachLink((link) => {
-      const coords = link.coords.map(coord => coord + offset);
+      const coords = link.coords.map((coord) => coord + offset);
       const line = new Line(coords, {
         fill: null,
         stroke: "#808080",
@@ -147,7 +153,7 @@
       const linksDeparting = [];
       const linksArriving = [];
 
-      node.links.forEach(link => {
+      node.links.forEach((link) => {
         if (link.fromId === node.id) {
           linksDeparting.push(link.id);
         } else {
