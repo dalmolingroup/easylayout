@@ -197,12 +197,7 @@
   });
 </script>
 
-<div style="width: 600px; height: 400px;">
-  <canvas bind:this={canvas} width="600" height="400"></canvas>
-</div>
+<canvas bind:this={canvas} width="600" height="400"></canvas>
 
 <style>
-  div {
-    border: 1px solid #ccc;
-  }
 </style>
