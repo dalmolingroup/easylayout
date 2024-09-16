@@ -66,7 +66,7 @@
     currentState = $isEditorMode ? States.EDITING : States.SIMULATING;
   }
 
-  let sidebarExpanded = false;
+  let sidebarExpanded = true;
 
   function toggleSidebar() {
     sidebarExpanded = !sidebarExpanded;
