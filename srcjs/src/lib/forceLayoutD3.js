@@ -34,13 +34,13 @@ export default function d3Layout(graph, settings) {
     })
   
     var simulation = forceSimulation(nodes)
-          .alphaDecay(settings.temperatureDecay)
+          .alphaDecay(settings.alphaDecay)
           .velocityDecay(settings.velocityDecay)
         .force("charge", forceManyBody()
-          .strength(-settings.gravity))
+          .strength(settings.strength))
         .force("link", forceLink(links)
-          .distance(settings.linkDistance)
-          .iterations(settings.springIterations)
+          .distance(settings.distance)
+          .iterations(settings.iterations)
           // TODO: Slider could multiply accessor result
           // d3js.org/d3-force/link#link_strength
           // .strength(settings.springCoeff)
@@ -49,7 +49,7 @@ export default function d3Layout(graph, settings) {
     simulation.stop();
   
     return {
-      simulation,
+      simulator: simulation,
 
       step: function() {
         simulation.tick();

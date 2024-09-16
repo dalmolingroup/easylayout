@@ -1,10 +1,16 @@
 import forceLayoutViva from "./forceLayoutViva";
 import forceLayoutD3 from "./forceLayoutD3";
 
+const effectorFn = (layout, id) => {
+    return (e) => {
+        layout.simulator[id](e.target.value);
+    }
+};
+
 const layoutSettings = [
     {
         "value": "viva",
-        "name": "VivaGraphJS",
+        "name": "@anvaka/VivaGraphJS",
         "spec": forceLayoutViva,
         "settings": [
             {
@@ -15,11 +21,7 @@ const layoutSettings = [
                 "max": 100,
                 "step": 1,
                 "value": 100,
-                "effectorFn": (layout, id) => {
-                    return (e) => {
-                        layout.simulator[id](e.target.value);
-                    }
-                }
+                "effectorFn": effectorFn,
             },
             {
                 "id": "springCoeff",
@@ -29,11 +31,7 @@ const layoutSettings = [
                 "max": 0.0025,
                 "step": 0.00001,
                 "value": 0.0002,
-                "effectorFn": (layout, id) => {
-                    return (e) => {
-                        layout.simulator[id](e.target.value);
-                    }
-                }
+                "effectorFn": effectorFn,
             },
             {
                 "id": "dragCoeff",
@@ -43,11 +41,7 @@ const layoutSettings = [
                 "max": 1,
                 "step": 0.01,
                 "value": 0.01,
-                "effectorFn": (layout, id) => {
-                    return (e) => {
-                        layout.simulator[id](e.target.value);
-                    }
-                }
+                "effectorFn": effectorFn,
             },
             {
                 "id": "gravity",
@@ -57,11 +51,7 @@ const layoutSettings = [
                 "max": -0.1,
                 "step": 0.1,
                 "value": -0.4,
-                "effectorFn": (layout, id) => {
-                    return (e) => {
-                        layout.simulator[id](e.target.value);
-                    }
-                }
+                "effectorFn": effectorFn,
             },
             {
                 "id": "timeStep",
@@ -71,33 +61,24 @@ const layoutSettings = [
                 "max": 100,
                 "step": 1,
                 "value": 10,
-                "effectorFn": (layout, id) => {
-                    return (e) => {
-                        layout.simulator[id](e.target.value);
-                    }
-                }
+                "effectorFn": effectorFn,
             },
         ],
     },
     {
         "value": "d3",
-        "name": "d3-force",
+        "name": "@d3/d3-force",
         "spec": forceLayoutD3,
         "settings": [
             {
-                "id": "temperatureDecay",
+                "id": "alphaDecay",
                 "name": "Temperature decay",
                 "type": "range",
                 "min": 0,
                 "max": 1,
                 "step": 0.001,
                 "value": 0.0228,
-                "effectorFn": (layout) => {
-                    return (e) => {
-                        console.log(layout);
-                        // layout.simulation[id](e.target.value);
-                    }
-                }
+                "effectorFn": effectorFn,
             },
             {
                 "id": "velocityDecay",
@@ -107,33 +88,49 @@ const layoutSettings = [
                 "max": 1,
                 "step": 0.01,
                 "value": 0.4,
+                "effectorFn": effectorFn,
             },
             {
-                "id": "gravity",
+                "id": "strength",
                 "name": "Node repulsion",
                 "type": "range",
                 "min": 0,
                 "max": 200,
                 "step": 0.1,
                 "value": 30,
+                "effectorFn": (layout, id) => {
+                    return (e) => {
+                        layout.simulator.force("charge")[id](-e.target.value);
+                    }
+                },
             },
             {
-                "id": "linkDistance",
+                "id": "distance",
                 "name": "Link distance",
                 "type": "range",
                 "min": 0,
                 "max": 100,
                 "step": 1,
                 "value": 30,
+                "effectorFn": (layout, id) => {
+                    return (e) => {
+                        layout.simulator.force("link")[id](e.target.value);
+                    }
+                },
             },
             {
-                "id": "springIterations",
+                "id": "iterations",
                 "name": "Link rigidity",
                 "type": "range",
                 "min": 0,
                 "max": 200,
                 "step": 0.1,
                 "value": 30,
+                "effectorFn": (layout, id) => {
+                    return (e) => {
+                        layout.simulator.force("link")[id](e.target.value);
+                    }
+                },
             },
         ],
     },
