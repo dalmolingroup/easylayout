@@ -156,13 +156,15 @@
       const linksDeparting = [];
       const linksArriving = [];
 
-      node.links.forEach((link) => {
-        if (link.fromId === node.id) {
-          linksDeparting.push(link.id);
-        } else {
-          linksArriving.push(link.id);
-        }
-      });
+      if (node.links) {
+        node.links.forEach((link) => {
+          if (link.fromId === node.id) {
+            linksDeparting.push(link.id);
+          } else {
+            linksArriving.push(link.id);
+          }
+        });
+      };
 
       const rect = new Rect({
         left: node.x + offset,
