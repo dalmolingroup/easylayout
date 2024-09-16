@@ -75,7 +75,7 @@
   function transmitCoordinatesBackToShiny() {
     let coordinates = [];
     graph.forEachNode(function(node) {
-      var pos = layout.getNodePosition(node.id);
+      var pos = layoutInstance.getNodePosition(node.id);
       coordinates.push({ x: pos.x, y: pos.y });
     });
 
