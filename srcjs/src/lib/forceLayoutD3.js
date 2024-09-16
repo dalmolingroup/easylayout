@@ -1,13 +1,13 @@
 import { forceSimulation, forceManyBody, forceLink } from 'd3-force';
 
-const settings = {
-    springLength : 20,
-    springCoeff : 1,
-    springIterations: 10,
-    gravity: -30
-}
+// const settings = {
+//     springLength : 20,
+//     springCoeff : 1,
+//     springIterations: 10,
+//     gravity: -30
+// }
 
-export default function d3Layout(graph) {
+export default function d3Layout(graph, settings) {
     let nodes = [];
     let links = [];
     let nodeIndexLookup = new Map();
@@ -34,16 +34,23 @@ export default function d3Layout(graph) {
     })
   
     var simulation = forceSimulation(nodes)
-        .force("charge", forceManyBody().strength(settings.gravity))
+          .alphaDecay(settings.temperatureDecay)
+          .velocityDecay(settings.velocityDecay)
+        .force("charge", forceManyBody()
+          .strength(-settings.gravity))
         .force("link", forceLink(links)
-          .strength(settings.springCoeff)
-          .distance(settings.springLength)
+          .distance(settings.linkDistance)
           .iterations(settings.springIterations)
+          // TODO: Slider could multiply accessor result
+          // d3js.org/d3-force/link#link_strength
+          // .strength(settings.springCoeff)
         );
   
     simulation.stop();
   
     return {
+      simulation,
+
       step: function() {
         simulation.tick();
       },

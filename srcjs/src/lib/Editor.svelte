@@ -143,7 +143,7 @@
       const line = new Line(coords, {
         fill: null,
         stroke: "#808080",
-        strokeWidth: 2,
+        strokeWidth: 1,
         selectable: false,
         evented: false,
         objectCaching: false,
@@ -167,7 +167,7 @@
       const rect = new Rect({
         left: node.x + offset,
         top: node.y + offset,
-        fill: "#0080ff",
+        fill: "#00a0ff",
         width: 10,
         height: 10,
         angle: 90,
@@ -197,12 +197,7 @@
   });
 </script>
 
-<div style="width: 600px; height: 400px;">
-  <canvas bind:this={canvas} width="600" height="400"></canvas>
-</div>
+<canvas bind:this={canvas} width="600" height="400"></canvas>
 
 <style>
-  div {
-    border: 1px solid #ccc;
-  }
 </style>

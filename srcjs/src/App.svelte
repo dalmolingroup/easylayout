@@ -1,34 +1,58 @@
 <script>
+  import "./app.css";
   import Graph from "./lib/Graph.svelte";
   import Editor from "./lib/Editor.svelte";
   import Viva from "vivagraphjs";
-  import forceLayoutViva from "./lib/forceLayoutViva";
-  import forceLayoutD3 from "./lib/forceLayoutD3";
+  import layoutSettings from "./lib/layoutSettings.js";
   import { isSimulationRunning, isEditorMode } from "./store.js";
   import { onMount } from "svelte";
-  import { nodeLoadTransform, linkLoadTransform } from "./lib/customTransformFromRToViva";
+  import {
+    nodeLoadTransform,
+    linkLoadTransform,
+  } from "./lib/customTransformFromRToViva";
+
+  // Speed dial imports
+  import { fly } from "svelte/transition";
+  import { SpeedDial, SpeedDialButton } from 'flowbite-svelte';
+  import { AdjustmentsHorizontalSolid, DrawSquareSolid, DotsHorizontalOutline, PauseSolid, PlaySolid, UploadSolid, ReplySolid } from 'flowbite-svelte-icons';
+
+  // Select imports
+  import { Label, Select, Range } from "flowbite-svelte";
+
+  const States = {
+    SIMULATING: "simulating",
+    EDITING: "editing",
+  }
+
+  let currentState = States.SIMULATING;
 
   let graph;
+  let layoutInstance;
 
   let selectedLayoutName = "viva";
-  let availableLayouts = { viva: forceLayoutViva, d3: forceLayoutD3 };
 
-  function switchLayout() {
-    selectedLayoutName = selectedLayoutName === "viva" ? "d3" : "viva";
-  }
+  $: selectedLayout = layoutSettings.find((l) => l.value === selectedLayoutName);
+  $: if (graph) {
+    let settings = {};
+    selectedLayout.settings.forEach((setting) => {
+      settings[setting.id] = setting.value;
+    });
+    layoutInstance = selectedLayout.spec(graph, settings);
+  };
 
   function toggleSimulation() {
     $isSimulationRunning = !$isSimulationRunning;
+    if ($isSimulationRunning) currentState = States.SIMULATING;
   }
 
   async function handleShinyData(graphJSON) {
     console.log("Received Shiny data:");
     console.log(graphJSON);
-    
+
     if (import.meta.env.DEV) {
-      graphJSON = (await import('./lib/graphJSON.dev.js')).default;
+      graphJSON = (await import("./lib/graphJSON.dev.js")).default;
     }
-    
+
     graph = Viva.Graph.serializer().loadFromJSON(
       graphJSON,
       nodeLoadTransform(graphJSON),
@@ -38,6 +62,14 @@
 
   function toggleEditorMode() {
     $isEditorMode = !$isEditorMode;
+    if ($isEditorMode) $isSimulationRunning = false;
+    currentState = $isEditorMode ? States.EDITING : States.SIMULATING;
+  }
+
+  let sidebarExpanded = false;
+
+  function toggleSidebar() {
+    sidebarExpanded = !sidebarExpanded;
   }
 
   onMount(() => {
@@ -52,34 +84,106 @@
   });
 </script>
 
-<main>
-  <div class="card">
-    {#if !$isEditorMode}
-      <button on:click={switchLayout}>
-        Switch layout (now: {selectedLayoutName})
-      </button>
-      <button on:click={toggleSimulation}>
-        {$isSimulationRunning ? "Pause" : "Continue"} simulation
-      </button>
-    {/if}
-    <button on:click={toggleEditorMode}>
-      {$isEditorMode ? "Leave editor" : "Enter editor"}
-    </button>
+{#if sidebarExpanded}
+<aside
+  id="expanded-sidebar"
+  class="fixed top-0 left-0 z-40 w-48 h-screen overflow-hidden"
+  aria-label="Sidebar"
+  in:fly={{ x: -200, duration: 300 }}
+  out:fly={{ x: -200, duration: 300 }}
+>
+  <div class="h-full px-3 py-4 overflow-hidden bg-gray-50 dark:bg-gray-800">
+    <ul class="space-y-2 font-medium text-lg">
+      <li>
+        <p class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white group">
+          <svg class="w-6 h-6 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 21">
+            <path d="M10.83 5a3.001 3.001 0 0 0-5.66 0H4a1 1 0 1 0 0 2h1.17a3.001 3.001 0 0 0 5.66 0H20a1 1 0 1 0 0-2h-9.17ZM4 11h9.17a3.001 3.001 0 0 1 5.66 0H20a1 1 0 1 1 0 2h-1.17a3.001 3.001 0 0 1-5.66 0H4a1 1 0 1 1 0-2Zm1.17 6H4a1 1 0 1 0 0 2h1.17a3.001 3.001 0 0 0 5.66 0H20a1 1 0 1 0 0-2h-9.17a3.001 3.001 0 0 0-5.66 0Z"/>
+          </svg>
+          <span class="ms-3">Settings</span>
+        </p>
+      </li>
+    </ul>
+    <ul
+      class="pt-4 mt-4 space-y-2 font-medium border-t border-gray-200 dark:border-gray-700"
+    >
+      <li class="mb-4">
+        <Label>
+          Layout algorithm
+          <Select
+            class="mt-2"
+            items={layoutSettings}
+            bind:value={selectedLayoutName}
+            placeholder=""
+          />
+        </Label>
+      </li>
+    </ul>
+    {#key selectedLayoutName}
+      <ul
+        out:fly={{ delay: 0, duration: 200 }}
+        in:fly={{ delay: 250, duration: 200 }}
+      >
+        {#each selectedLayout.settings as setting}
+          <li>
+            <Label>{setting.name}</Label>
+            <Range
+              size="sm"
+              id={setting.id}
+              min={setting.min}
+              max={setting.max}
+              value={setting.value}
+              step={setting.step}
+              on:change={setting.effectorFn(layoutInstance, setting.id)}
+            />
+          </li>
+        {/each}
+      </ul>
+    {/key}
   </div>
-  <div class="card">
+</aside>
+{/if}
+
+<main class="container flex flex-col h-screen">
+
+  <div class="flex flex-grow bg-slate-50">
     {#if graph && !$isEditorMode}
       {#key selectedLayoutName}
-        <Graph
-          {graph}
-          layoutSpecification={availableLayouts[selectedLayoutName]}
-        />
+        <Graph {graph} layout={layoutInstance} />
       {/key}
     {:else if $isEditorMode}
       <Editor {graph} />
     {:else}
-      <p>Loading graph...</p>
+      <p>Loading graph....</p>
     {/if}
   </div>
+
+  <SpeedDial color="dark" defaultClass="fixed end-6 top-6" pill={false}>
+    <DotsHorizontalOutline slot="icon" class="w-8 h-8" />
+    {#if currentState === States.SIMULATING}
+    <SpeedDialButton name={$isSimulationRunning ? "Pause" : "Resume"} on:click={toggleSimulation}>
+      {#if $isSimulationRunning}
+        <PauseSolid slot="icon" class="w-8 h-8" />
+      {:else}
+        <PlaySolid slot="icon" class="w-8 h-8" />
+      {/if}
+    </SpeedDialButton>
+    <SpeedDialButton name="Layout settings" on:click={toggleSidebar}>
+      <AdjustmentsHorizontalSolid class="w-6 h-6" />
+    </SpeedDialButton>
+    {/if}
+    {#if $isEditorMode}
+    <SpeedDialButton name="Simulation" on:click={toggleEditorMode}>
+      <ReplySolid class="w-6 h-6" />
+    </SpeedDialButton>
+    {:else}
+    <SpeedDialButton name="Edit" on:click={toggleEditorMode}>
+      <DrawSquareSolid class="w-6 h-6" />
+    </SpeedDialButton>
+    {/if}
+    <SpeedDialButton name="Finish">
+      <UploadSolid class="w-6 h-6" />
+    </SpeedDialButton>
+  </SpeedDial>
 </main>
 
 <style>
