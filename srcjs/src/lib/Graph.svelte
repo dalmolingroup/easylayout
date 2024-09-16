@@ -22,10 +22,19 @@
       if (node.x) layout.setNodePosition(node.id, node.x, node.y);
     });
 
+    let graphics = Viva.Graph.View.webglGraphics();
+
+    graphics.node(function(node) {
+      return Viva.Graph.View.webglSquare(
+        node.data.size || 10,
+        node.data.color || "#000000"
+      );
+    });
+
     renderer = Viva.Graph.View.renderer(graph, {
       layout: layout,
       container: container,
-      graphics: Viva.Graph.View.webglGraphics(),
+      graphics: graphics,
       renderLinks: true,
       prerender: true,
     });

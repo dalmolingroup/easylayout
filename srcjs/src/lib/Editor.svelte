@@ -167,9 +167,9 @@
       const rect = new Rect({
         left: node.x + offset,
         top: node.y + offset,
-        fill: "#00a0ff",
-        width: 10,
-        height: 10,
+        fill: node.data.color || "#000000",
+        width: node.data.color || 10,
+        height: node.data.color || 10,
         angle: 90,
         hasControls: false,
         originX: "center",
