@@ -141,7 +141,7 @@
     </button>
   </div>
 
-  <div class="flex flex-grow bg-yellow-100">
+  <div class="flex flex-grow bg-slate-50">
     {#if graph && !$isEditorMode}
       {#key selectedLayoutName}
         <Graph {graph} layout={layoutInstance} />
