@@ -14,10 +14,17 @@
   // Speed dial imports
   import { fly } from "svelte/transition";
   import { SpeedDial, SpeedDialButton } from 'flowbite-svelte';
-  import { AdjustmentsHorizontalSolid, DrawSquareSolid, DotsHorizontalOutline, PauseSolid, PlaySolid, ShareNodesSolid, PrinterSolid, DownloadSolid, FileCopySolid } from 'flowbite-svelte-icons';
+  import { AdjustmentsHorizontalSolid, DrawSquareSolid, DotsHorizontalOutline, PauseSolid, PlaySolid, UploadSolid, ReplySolid } from 'flowbite-svelte-icons';
 
   // Select imports
   import { Label, Select, Range } from "flowbite-svelte";
+
+  const States = {
+    SIMULATING: "simulating",
+    EDITING: "editing",
+  }
+
+  let currentState = States.SIMULATING;
 
   let graph;
   let layoutInstance;
@@ -35,6 +42,7 @@
 
   function toggleSimulation() {
     $isSimulationRunning = !$isSimulationRunning;
+    if ($isSimulationRunning) currentState = States.SIMULATING;
   }
 
   async function handleShinyData(graphJSON) {
@@ -54,6 +62,8 @@
 
   function toggleEditorMode() {
     $isEditorMode = !$isEditorMode;
+    if ($isEditorMode) $isSimulationRunning = false;
+    currentState = $isEditorMode ? States.EDITING : States.SIMULATING;
   }
 
   let sidebarExpanded = false;
@@ -134,17 +144,6 @@
 {/if}
 
 <main class="container flex flex-col h-screen">
-  <div class="fixed top-0 right-0 bg-cyan-400">
-    {#if !$isEditorMode}
-      <button on:click={toggleSimulation}>
-        {$isSimulationRunning ? "Pause" : "Continue"} simulation
-      </button>
-    {/if}
-
-    <button on:click={toggleEditorMode}>
-      {$isEditorMode ? "Leave editor" : "Enter editor"}
-    </button>
-  </div>
 
   <div class="flex flex-grow bg-slate-50">
     {#if graph && !$isEditorMode}
@@ -160,6 +159,7 @@
 
   <SpeedDial color="dark" defaultClass="fixed end-6 top-6" pill={false}>
     <DotsHorizontalOutline slot="icon" class="w-8 h-8" />
+    {#if currentState === States.SIMULATING}
     <SpeedDialButton name={$isSimulationRunning ? "Pause" : "Resume"} on:click={toggleSimulation}>
       {#if $isSimulationRunning}
         <PauseSolid slot="icon" class="w-8 h-8" />
@@ -170,11 +170,18 @@
     <SpeedDialButton name="Layout settings" on:click={toggleSidebar}>
       <AdjustmentsHorizontalSolid class="w-6 h-6" />
     </SpeedDialButton>
+    {/if}
+    {#if $isEditorMode}
+    <SpeedDialButton name="Simulation" on:click={toggleEditorMode}>
+      <ReplySolid class="w-6 h-6" />
+    </SpeedDialButton>
+    {:else}
     <SpeedDialButton name="Edit" on:click={toggleEditorMode}>
       <DrawSquareSolid class="w-6 h-6" />
     </SpeedDialButton>
+    {/if}
     <SpeedDialButton name="Finish">
-      <DownloadSolid class="w-6 h-6" />
+      <UploadSolid class="w-6 h-6" />
     </SpeedDialButton>
   </SpeedDial>
 </main>
