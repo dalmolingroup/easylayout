@@ -133,26 +133,6 @@
 </aside>
 {/if}
 
-<SpeedDial color="dark" defaultClass="fixed end-6 top-6" pill={false}>
-  <DotsHorizontalOutline slot="icon" class="w-8 h-8" />
-  <SpeedDialButton name={$isSimulationRunning ? "Pause" : "Resume"}>
-    {#if $isSimulationRunning}
-      <PauseSolid slot="icon" class="w-8 h-8" />
-    {:else}
-      <PlaySolid slot="icon" class="w-8 h-8" />
-    {/if}
-  </SpeedDialButton>
-  <SpeedDialButton name="Layout settings" on:click={toggleSidebar}>
-    <AdjustmentsHorizontalSolid class="w-6 h-6" />
-  </SpeedDialButton>
-  <SpeedDialButton name="Edit">
-    <DrawSquareSolid class="w-6 h-6" />
-  </SpeedDialButton>
-  <SpeedDialButton name="Finish">
-    <DownloadSolid class="w-6 h-6" />
-  </SpeedDialButton>
-</SpeedDial>
-
 <main class="container flex flex-col h-screen">
   <div class="fixed top-0 right-0 bg-cyan-400">
     {#if !$isEditorMode}
@@ -177,6 +157,26 @@
       <p>Loading graph....</p>
     {/if}
   </div>
+
+  <SpeedDial color="dark" defaultClass="fixed end-6 top-6" pill={false}>
+    <DotsHorizontalOutline slot="icon" class="w-8 h-8" />
+    <SpeedDialButton name={$isSimulationRunning ? "Pause" : "Resume"} on:click={toggleSimulation}>
+      {#if $isSimulationRunning}
+        <PauseSolid slot="icon" class="w-8 h-8" />
+      {:else}
+        <PlaySolid slot="icon" class="w-8 h-8" />
+      {/if}
+    </SpeedDialButton>
+    <SpeedDialButton name="Layout settings" on:click={toggleSidebar}>
+      <AdjustmentsHorizontalSolid class="w-6 h-6" />
+    </SpeedDialButton>
+    <SpeedDialButton name="Edit" on:click={toggleEditorMode}>
+      <DrawSquareSolid class="w-6 h-6" />
+    </SpeedDialButton>
+    <SpeedDialButton name="Finish">
+      <DownloadSolid class="w-6 h-6" />
+    </SpeedDialButton>
+  </SpeedDial>
 </main>
 
 <style>
