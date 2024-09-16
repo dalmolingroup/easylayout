@@ -72,6 +72,16 @@
     sidebarExpanded = !sidebarExpanded;
   }
 
+  function transmitCoordinatesBackToShiny() {
+    let coordinates = [];
+    graph.forEachNode(function(node) {
+      var pos = layout.getNodePosition(node.id);
+      coordinates.push({ x: pos.x, y: pos.y });
+    });
+
+    Shiny.setInputValue("coordinates", coordinates);
+  }
+
   onMount(() => {
     jQuery(document).on("shiny:connected", function () {
       console.log("Shiny connected");
@@ -180,7 +190,7 @@
       <DrawSquareSolid class="w-6 h-6" />
     </SpeedDialButton>
     {/if}
-    <SpeedDialButton name="Finish">
+    <SpeedDialButton name="Finish" on:click={transmitCoordinatesBackToShiny}>
       <UploadSolid class="w-6 h-6" />
     </SpeedDialButton>
   </SpeedDial>
