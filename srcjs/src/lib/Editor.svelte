@@ -167,7 +167,7 @@
       const rect = new Rect({
         left: node.x + offset,
         top: node.y + offset,
-        fill: "#0080ff",
+        fill: "#00a0ff",
         width: 10,
         height: 10,
         angle: 90,
