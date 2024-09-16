@@ -143,7 +143,7 @@
       const line = new Line(coords, {
         fill: null,
         stroke: "#808080",
-        strokeWidth: 2,
+        strokeWidth: 1,
         selectable: false,
         evented: false,
         objectCaching: false,
