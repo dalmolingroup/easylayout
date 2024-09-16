@@ -13,6 +13,8 @@
 
   // Speed dial imports
   import { fly } from "svelte/transition";
+  import { SpeedDial, SpeedDialButton } from 'flowbite-svelte';
+  import { AdjustmentsHorizontalSolid, DrawSquareSolid, DotsHorizontalOutline, PauseSolid, PlaySolid, ShareNodesSolid, PrinterSolid, DownloadSolid, FileCopySolid } from 'flowbite-svelte-icons';
 
   // Select imports
   import { Label, Select, Range } from "flowbite-svelte";
@@ -58,7 +60,6 @@
 
   function toggleSidebar() {
     sidebarExpanded = !sidebarExpanded;
-    console.log(sidebarExpanded);
   }
 
   onMount(() => {
@@ -73,10 +74,13 @@
   });
 </script>
 
+{#if sidebarExpanded}
 <aside
   id="expanded-sidebar"
   class="fixed top-0 left-0 z-40 w-48 h-screen overflow-hidden"
   aria-label="Sidebar"
+  in:fly={{ x: -200, duration: 300 }}
+  out:fly={{ x: -200, duration: 300 }}
 >
   <div class="h-full px-3 py-4 overflow-hidden bg-gray-50 dark:bg-gray-800">
     <ul class="space-y-2 font-medium text-lg">
@@ -127,6 +131,27 @@
     {/key}
   </div>
 </aside>
+{/if}
+
+<SpeedDial color="dark" defaultClass="fixed end-6 top-6" pill={false}>
+  <DotsHorizontalOutline slot="icon" class="w-8 h-8" />
+  <SpeedDialButton name={$isSimulationRunning ? "Pause" : "Resume"}>
+    {#if $isSimulationRunning}
+      <PauseSolid slot="icon" class="w-8 h-8" />
+    {:else}
+      <PlaySolid slot="icon" class="w-8 h-8" />
+    {/if}
+  </SpeedDialButton>
+  <SpeedDialButton name="Layout settings" on:click={toggleSidebar}>
+    <AdjustmentsHorizontalSolid class="w-6 h-6" />
+  </SpeedDialButton>
+  <SpeedDialButton name="Edit">
+    <DrawSquareSolid class="w-6 h-6" />
+  </SpeedDialButton>
+  <SpeedDialButton name="Finish">
+    <DownloadSolid class="w-6 h-6" />
+  </SpeedDialButton>
+</SpeedDial>
 
 <main class="container flex flex-col h-screen">
   <div class="fixed top-0 right-0 bg-cyan-400">
