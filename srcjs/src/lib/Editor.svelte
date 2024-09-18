@@ -142,7 +142,7 @@
       const coords = link.coords.map((coord) => coord + offset);
       const line = new Line(coords, {
         fill: null,
-        stroke: "#808080",
+        stroke: "#909090",
         strokeWidth: 1,
         selectable: false,
         evented: false,
