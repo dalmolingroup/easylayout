@@ -1,7 +1,24 @@
-rescale <- function(x, from, to) approxfun(range(x), c(from, to))(x)
-
-has_at_least_two_values <- function(x) length(unique(x)) > 1
-
+#' Layout an igraph object using easylayout's web application.
+#'
+#' The `easylayout` function takes an igraph object and serializes`
+#' it into a web application integrated with the IDE’s interface
+#' through a Shiny server. The web application lays out the network by
+#' simulating attraction and repulsion forces. Simulation parameters
+#' can be adjusted in real-time. An editing mode allows moving and rotating
+#' nodes. Once the user finishes tinkering the layout, it is sent back to the
+#' R session to be plotted through popular libraries like ggplot2 or even the
+#' base package itself.
+#'
+#' @param graph An igraph object representing the network to be laid out.
+#' @return A two column matrix with XY coordinates and N rows, where N is
+#' the number of vertices in the graph.
+#' @examples
+#' \dontrun{
+#' library(igraph)
+#' g <- make_ring(10)
+#' g <- easylayout(g)
+#' plot(g)
+#' }
 #' @export
 easylayout <- function(graph) {
 
@@ -101,3 +118,7 @@ easylayout <- function(graph) {
 
   layout
 }
+
+rescale <- function(x, from, to) approxfun(range(x), c(from, to))(x)
+
+has_at_least_two_values <- function(x) length(unique(x)) > 1
