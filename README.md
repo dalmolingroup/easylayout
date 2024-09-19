@@ -29,7 +29,7 @@ You can install the development version of easylayout from
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("daniloimparato/easylayout", ref = "main")
+devtools::install_github("dalmolingroup/easylayout")
 ```
 
 ## Example
