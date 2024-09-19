@@ -1,4 +1,4 @@
-#' easylayout: Publication-ready Networks Directly in your IDE
+#' easylayout: Publication-Ready Networks Directly in your IDE
 #'
 #' The `easylayout` package seamlessly bridges manipulation and visualization
 #' by leveraging the user’s IDE itself (e.g., RStudio, VSCode). It is not yet
