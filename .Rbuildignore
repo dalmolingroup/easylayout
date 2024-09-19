@@ -19,3 +19,4 @@
 ^logo\.svg$
 ^\.github$
 ^CRAN-SUBMISSION$
+^LICENSE\.md$
