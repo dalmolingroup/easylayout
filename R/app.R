@@ -43,7 +43,7 @@ easylayout <- function(graph) {
   }
 
   subgraphs <- igraph::decompose.graph(graph)
-  subgraphs_sizes <- sapply(subgraphs, igraph::vcount) <= pin_threshold
+  subgraphs_sizes <- sapply(subgraphs, igraph::vcount)
   subgraphs_to_pin <- subgraphs_sizes <= pin_threshold
 
   # Magic precomputing
