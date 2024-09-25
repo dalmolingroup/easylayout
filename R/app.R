@@ -73,8 +73,8 @@ easylayout <- function(graph) {
 
     dist_layout <- igraph::layout_with_fr(dist_graph, niter = precompute_iterations) * initial_size_multiplier
 
-    V(graph)$x <- dist_layout[,1]
-    V(graph)$y <- dist_layout[,2]
+    igraph::V(graph)$x <- dist_layout[,1]
+    igraph::V(graph)$y <- dist_layout[,2]
   }
 
   if(is.matrix(layout)){
