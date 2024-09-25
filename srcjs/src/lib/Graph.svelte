@@ -19,7 +19,7 @@
     graph.forEachNode((node) => {
       // Ideally we don't need this check because the nodes
       // should always have precomputed positions
-      if (node.x) layout.setNodePosition(node.id, node.x, node.y);
+      if (node.data.x) layout.setNodePosition(node.id, node.data.x, node.data.y);
     });
 
     let graphics = Viva.Graph.View.webglGraphics();

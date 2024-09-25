@@ -1,6 +1,6 @@
 const graphJSON = {
     nodes: [
-        { "id": "1", "size": 20, "color": "#ff0000" },
+        { "id": "1", "size": 20, "color": "#ff0000", "x": 123, "y": 123 },
         { "id": "2", "size": 40, "color": "#00ff00" },
         { "id": "3", "size": 5 },
         { "id": "4", "color": "#0000ff" },
