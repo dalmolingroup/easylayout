@@ -7,6 +7,7 @@
     ActiveSelection,
     controlsUtils,
     Point,
+    Group,
   } from "fabric";
 
   export let graph;
@@ -15,6 +16,8 @@
   let fabricCanvas;
   const offset = 200;
   const linesByLinkId = new Map();
+  const groupsByComponentId = new Map();
+  const rectsByNodeId = new Map();
 
   // <disable-scaling src=fabricjs.github.io/docs/configuring-controls>
   // Removing all six scaling handles, keeping rotating handle
@@ -179,22 +182,85 @@
         objectCaching: false,
         linksDeparting: linksDeparting,
         linksArriving: linksArriving,
+        nodeId: node.id,
+        id: "_node" + node.id,
       });
 
-      fabricCanvas.add(rect);
+      rectsByNodeId.set(node.id, rect);
+
+      if(!node.data.component) {
+        fabricCanvas.add(rect);
+        return;
+      }
+
+      if(!groupsByComponentId.has(node.data.component)) {
+        console.log("Creating group for component", node.data.component);
+        const group = new Group([rect], {
+          hasControls: false,
+          originX: "center",
+          originY: "center",
+          objectCaching: false,
+        });
+
+        groupsByComponentId.set(node.data.component, group);
+        fabricCanvas.add(group);
+        return;
+      }
+
+      console.log("Getting group for component", groupsByComponentId.get(node.data.component));
+      groupsByComponentId.get(node.data.component).add(rect);
+      return;
     });
 
     fabricCanvas.requestRenderAll();
   });
 
   onDestroy(() => {
-    const canvasObjects = fabricCanvas.getObjects();
-    let currentNodeIndex = 0;
+    // const canvasObjects = fabricCanvas.getObjects();
+    // let currentNodeIndex = 0;
+    // graph.forEachNode((node) => {
+    //   node.x = canvasObjects[currentNodeIndex].left - offset;
+    //   node.y = canvasObjects[currentNodeIndex].top - offset;
+    //   currentNodeIndex++;
+    // });
+
+    // graph.forEachNode((node) => {
+    //   const rect = fabricCanvas.getObject("_node" + node.id);
+    //   node.x = rect.left - offset;
+    //   node.y = rect.top - offset;
+    // });
+
     graph.forEachNode((node) => {
-      node.x = canvasObjects[currentNodeIndex].left - offset;
-      node.y = canvasObjects[currentNodeIndex].top - offset;
-      currentNodeIndex++;
+      console.log("Getting node before:", node);
+      const rect = rectsByNodeId.get(node.id);
+      node.x = rect.left - offset;
+      node.y = rect.top - offset;
+      console.log("Getting node before:", node);
     });
+
+    // fabricCanvas.forEachObject((obj) => {
+    //   const objType = obj.get("type");
+
+    //   if(objType === "line")
+    //     return;
+
+    //   if (objType === "group") {
+    //     console.log("Group:", obj);
+    //     obj._objects.forEach((rect) => {
+    //       console.log("Group object:", rect);
+    //       console.log("Getting node:", graph.getNode(rect.nodeId));
+    //       graph.getNode(rect.nodeId).x = rect.left - offset;
+    //       graph.getNode(rect.nodeId).y = rect.top - offset;
+    //     });
+    //     return;
+    //   }
+
+    //   console.log("Object:", obj);
+    //   console.log("Getting node before:", graph.getNode(obj.nodeId));
+    //   graph.getNode(obj.nodeId).x = obj.left - offset;
+    //   graph.getNode(obj.nodeId).y = obj.top - offset;
+    //   console.log("Getting node after:", graph.getNode(obj.nodeId));
+    // });
     fabricCanvas.dispose();
   });
 </script>
