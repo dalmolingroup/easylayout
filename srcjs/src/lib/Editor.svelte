@@ -13,7 +13,7 @@
   export let graph;
   export let layout;
 
-  let canvas;
+  let canvasHTMLElement;
   let fabricCanvas;
   const offset = 200;
   const linesByLinkId = new Map();
@@ -66,7 +66,7 @@
   }
 
   onMount(() => {
-    fabricCanvas = new Canvas(canvas, {
+    fabricCanvas = new Canvas(canvasHTMLElement, {
       fireRightClick: true,
       stopContextMenu: true,
     });
@@ -205,7 +205,7 @@
   });
 </script>
 
-<canvas bind:this={canvas} width="600" height="400"></canvas>
+<canvas bind:this={canvasHTMLElement} width="600" height="400"></canvas>
 
 <style>
 </style>
