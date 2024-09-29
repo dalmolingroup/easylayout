@@ -35,9 +35,8 @@
     lockScalingY: true,
   };
 
-  function updateLines(event) {
-    const rootObject = event.target;
-    const rootObjectIsGroup = "_objects" in event.target;
+  function updateLines(rootObject) {
+    const rootObjectIsGroup = "_objects" in rootObject;
 
     let childObjects = rootObjectIsGroup ? rootObject._objects : [rootObject]; 
 
@@ -119,8 +118,8 @@
     // medium.com/@luizzappa/the-transformation-matrix-in-fabric-js-fb7f733d0624
     // OBRIGADO @luizzappa VC MERECE UM BEIJO
     fabricCanvas.on({
-      "object:moving": updateLines,
-      "object:rotating": updateLines,
+      "object:moving": (event) => { return updateLines(event.target) },
+      "object:rotating": (event) => { return updateLines(event.target) },
     });
 
     graph.forEachLink((link) => {
