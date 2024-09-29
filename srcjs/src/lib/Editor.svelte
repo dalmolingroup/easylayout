@@ -45,7 +45,7 @@
     return newGroup.height;
   };
 
-  function virtuallyRotateGroup(group, angle) {
+  function getHeightIfRotated(group, angle) {
     const radians = angle * Math.PI / 180;
 
     // Rotate each point around the center of the list of points
@@ -63,13 +63,10 @@
     let listOfYValues = rotatedListOfPoints.map((point) => point.y);
     let height = Math.max(...listOfYValues) - Math.min(...listOfYValues);
 
-    return {
-      rotatedListOfPoints,
-      height,
-    };
+    return height;
   }
 
-  function findOptimalRotationAngle(group, componentId) {
+  function minimizeGroupHeightThroughRotation(group, componentId) {
     if (group._objects.length === 1) return group.angle;
 
     let left = -90;
@@ -80,11 +77,8 @@
       let mid1 = left + (right - left) / 3;
       let mid2 = right - (right - left) / 3;
 
-      let vr1 = virtuallyRotateGroup(group, mid1);
-      let vr2 = virtuallyRotateGroup(group, mid2);
-      
-      let height1 = vr1.height;
-      let height2 = vr2.height;
+      let height1 = getHeightIfRotated(group, mid1);
+      let height2 = getHeightIfRotated(group, mid2);
 
       if (height1 < height2) {
         right = mid2;
@@ -94,13 +88,13 @@
     }
 
     let optimalAngle = (left + right) / 2;
-    console.log(`Optimal angle: ${optimalAngle}`);
+    rotateComponent(group, componentId, optimalAngle);
     return optimalAngle;
   };
 
   export function rotateComponents(event) {
     if (fabricCanvas) {
-      groupsByComponentId.forEach(findOptimalRotationAngle);
+      groupsByComponentId.forEach(minimizeGroupHeightThroughRotation);
       fabricCanvas.renderAll();
     }
   }
