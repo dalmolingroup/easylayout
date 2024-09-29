@@ -94,7 +94,7 @@
   });
 </script>
 
-{#if sidebarExpanded}
+{#if sidebarExpanded && !$isEditorMode}
 <aside
   id="expanded-sidebar"
   class="fixed top-0 left-0 z-40 w-48 h-screen overflow-hidden"
