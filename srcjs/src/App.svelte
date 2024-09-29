@@ -161,7 +161,7 @@
         <Graph {graph} layout={layoutInstance} />
       {/key}
     {:else if $isEditorMode}
-      <Editor {graph} />
+      <Editor {graph} layout={layoutInstance} />
     {:else}
       <p>Loading graph....</p>
     {/if}
