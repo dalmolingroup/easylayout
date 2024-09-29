@@ -44,13 +44,13 @@
     newGroup.setCoords();
 
     return newGroup.height;
-  };
+  }
 
   function getHeightIfRotated(group, angle) {
-    const radians = angle * Math.PI / 180;
+    const radians = (angle * Math.PI) / 180;
 
     // Rotate each point around the center of the list of points
-    const rotatedListOfPoints =  group._objects.map((obj) => {
+    const rotatedListOfPoints = group._objects.map((obj) => {
       let x = obj.left - group.left;
       let y = obj.top - group.top;
 
@@ -77,7 +77,7 @@
     while (right - left > precision) {
       let mid1 = left + (right - left) / 3;
       let mid2 = right - (right - left) / 3;
-      
+
       let height1 = getHeightIfRotated(group, mid1);
       let height2 = getHeightIfRotated(group, mid2);
 
@@ -91,7 +91,7 @@
     let optimalAngle = (left + right) / 2;
     rotateComponent(group, componentId, optimalAngle);
     return optimalAngle;
-  };
+  }
 
   export function rotateComponents(event) {
     if (fabricCanvas) {
@@ -102,10 +102,12 @@
 
   // <disable-scaling src=fabricjs.github.io/docs/configuring-controls>
   // Removing all six scaling handles, keeping rotating handle
-  const controls = { mtr: controlsUtils.createObjectDefaultControls().mtr };
+  const controls = {
+    controls: { mtr: controlsUtils.createObjectDefaultControls().mtr },
+  };
 
-  ActiveSelection.createControls = () => { return { controls } };
-  Group.createControls = () => { return { controls } };
+  ActiveSelection.createControls = () => controls;
+  Group.createControls = () => controls;
 
   // Since the scaling handles are hidden,
   // this part is not stricly necessary
@@ -118,26 +120,26 @@
   function updateLines(rootObject) {
     const rootObjectIsGroup = "_objects" in rootObject;
 
-    let childObjects = rootObjectIsGroup ? rootObject._objects : [rootObject]; 
+    let childObjects = rootObjectIsGroup ? rootObject._objects : [rootObject];
 
-    childObjects.forEach((childObject) => {
+    childObjects.forEach((child) => {
       // TODO: Handle nested groups recursively
-      if ("_objects" in childObject) return;
+      if ("_objects" in child) return;
 
-      const finalPointRelativeToParent = new Point(childObject.left, childObject.top);
-      const finalPointRelativeToGrandparent = finalPointRelativeToParent.transform(
+      const pointRelativeToParent = new Point(child.left, child.top);
+      const pointRelativeToGrandparent = pointRelativeToParent.transform(
         rootObject.calcTransformMatrix(),
       );
 
       let finalPoint = rootObjectIsGroup
-        ? finalPointRelativeToGrandparent
-        : finalPointRelativeToParent;
+        ? pointRelativeToGrandparent
+        : pointRelativeToParent;
 
-      childObject.linksDeparting.forEach((linkId) => {
+      child.linksDeparting.forEach((linkId) => {
         const line = linesByLinkId.get(linkId);
         line.set({ x1: finalPoint.x, y1: finalPoint.y });
       });
-      childObject.linksArriving.forEach((linkId) => {
+      child.linksArriving.forEach((linkId) => {
         const line = linesByLinkId.get(linkId);
         line.set({ x2: finalPoint.x, y2: finalPoint.y });
       });
@@ -159,8 +161,8 @@
     // medium.com/@luizzappa/the-transformation-matrix-in-fabric-js-fb7f733d0624
     // OBRIGADO @luizzappa VC MERECE UM BEIJO
     fabricCanvas.on({
-      "object:moving": (event) => { return updateLines(event.target) },
-      "object:rotating": (event) => { return updateLines(event.target) },
+      "object:moving": (event) => updateLines(event.target),
+      "object:rotating": (event) => updateLines(event.target),
     });
 
     graph.forEachLink((link) => {
@@ -189,7 +191,7 @@
             linksArriving.push(link.id);
           }
         });
-      };
+      }
 
       const rect = new Rect({
         left: node.x + offset,
@@ -210,12 +212,12 @@
 
       rectsByNodeId.set(node.id, rect);
 
-      if(!node.data.component) {
+      if (!node.data.component) {
         fabricCanvas.add(rect);
         return;
       }
 
-      if(!groupsByComponentId.has(node.data.component)) {
+      if (!groupsByComponentId.has(node.data.component)) {
         const group = new Group([rect], {
           originX: "center",
           originY: "center",
@@ -238,7 +240,11 @@
     graph.forEachNode((node) => {
       const rect = rectsByNodeId.get(node.id);
       if ("component" in node.data)
-        layout.setNodePosition(node.id, (rect.left + rect.group.left) - offset, (rect.top + rect.group.top) - offset);
+        layout.setNodePosition(
+          node.id,
+          rect.left + rect.group.left - offset,
+          rect.top + rect.group.top - offset,
+        );
       else
         layout.setNodePosition(node.id, rect.left - offset, rect.top - offset);
     });
