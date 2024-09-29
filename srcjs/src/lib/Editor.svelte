@@ -20,6 +20,97 @@
   const groupsByComponentId = new Map();
   const rectsByNodeId = new Map();
 
+  function rotateComponent(group, componentId, angle) {
+    group.angle = angle;
+
+    const newGroup = new Group([], {
+      originX: "center",
+      originY: "center",
+      objectCaching: false,
+    });
+
+    group.forEachObject((i) => {
+      group.remove(i);
+      newGroup.add(i);
+    });
+
+    fabricCanvas.remove(group);
+
+    groupsByComponentId.set(componentId, newGroup);
+    fabricCanvas.add(newGroup);
+
+    updateLines(newGroup);
+    newGroup.setCoords();
+
+    return newGroup.height;
+  };
+
+  function virtuallyRotateGroup(group, angle) {
+    const radians = angle * Math.PI / 180;
+
+    // Rotate each point around the center of the list of points
+    const rotatedListOfPoints =  group._objects.map((obj) => {
+      let x = obj.left - group.left;
+      let y = obj.top - group.top;
+
+      let xNew = x * Math.cos(radians) - y * Math.sin(radians) + group.left;
+      let yNew = x * Math.sin(radians) + y * Math.cos(radians) + group.top;
+
+      return new Point(xNew, yNew);
+    });
+
+    console.log(rotatedListOfPoints);
+
+    // Find the height of the rotated list of points
+    let listOfYValues = rotatedListOfPoints.map((point) => point.y);
+    console.log(listOfYValues);
+    let height = Math.max(...listOfYValues) - Math.min(...listOfYValues);
+    console.log(height);
+
+    return {
+      rotatedListOfPoints,
+      height,
+    };
+  }
+
+  function findOptimalRotationAngle(group, componentId) {
+    if (group._objects.length === 1) return group.angle;
+
+    let left = -90;
+    let right = 90;
+    let precision = 1;
+
+    while (right - left > precision) {
+      let mid1 = left + (right - left) / 3;
+      let mid2 = right - (right - left) / 3;
+
+      let vr1 = virtuallyRotateGroup(group, mid1);
+      let vr2 = virtuallyRotateGroup(group, mid2);
+      
+      let height1 = vr1.height;
+      let height2 = vr2.height;
+
+      if (height1 < height2) {
+        right = mid2;
+        console.log(`angle: ${(left + right) / 2}, height: ${height1}`);
+      } else {
+        left = mid1;
+        console.log(`angle: ${(left + right) / 2}, height: ${height2}`);
+      }
+    }
+
+    let optimalAngle = (left + right) / 2;
+    console.log(`Optimal angle: ${optimalAngle}`);
+    return optimalAngle;
+  };
+
+  export function rotateComponents(event) {
+    if (fabricCanvas) {
+      groupsByComponentId.forEach(findOptimalRotationAngle);
+      fabricCanvas.renderAll();
+    }
+  }
+
   // <disable-scaling src=fabricjs.github.io/docs/configuring-controls>
   // Removing all six scaling handles, keeping rotating handle
   const controls = { mtr: controlsUtils.createObjectDefaultControls().mtr };
@@ -47,7 +138,7 @@
       const finalPointRelativeToParent = new Point(childObject.left, childObject.top);
       const finalPointRelativeToGrandparent = finalPointRelativeToParent.transform(
         rootObject.calcTransformMatrix(),
-        );
+      );
 
       let finalPoint = rootObjectIsGroup
         ? finalPointRelativeToGrandparent
@@ -175,7 +266,6 @@
       }
 
       if(!groupsByComponentId.has(node.data.component)) {
-        console.log("Creating group for component", node.data.component);
         const group = new Group([rect], {
           originX: "center",
           originY: "center",

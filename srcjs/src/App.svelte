@@ -14,7 +14,7 @@
   // Speed dial imports
   import { fly } from "svelte/transition";
   import { SpeedDial, SpeedDialButton } from 'flowbite-svelte';
-  import { AdjustmentsHorizontalSolid, DrawSquareSolid, DotsHorizontalOutline, PauseSolid, PlaySolid, UploadSolid, ReplySolid } from 'flowbite-svelte-icons';
+  import { AdjustmentsHorizontalSolid, DrawSquareSolid, DotsHorizontalOutline, PauseSolid, PlaySolid, UploadSolid, ReplySolid, ObjectsColumnSolid, } from 'flowbite-svelte-icons';
 
   // Select imports
   import { Label, Select, Range } from "flowbite-svelte";
@@ -25,6 +25,8 @@
   }
 
   let currentState = States.SIMULATING;
+
+  let editorComponent;
 
   let graph;
   let layoutInstance;
@@ -161,7 +163,7 @@
         <Graph {graph} layout={layoutInstance} />
       {/key}
     {:else if $isEditorMode}
-      <Editor {graph} layout={layoutInstance} />
+      <Editor {graph} layout={layoutInstance} bind:this={editorComponent}/>
     {:else}
       <p>Loading graph....</p>
     {/if}
@@ -184,6 +186,9 @@
     {#if $isEditorMode}
     <SpeedDialButton name="Simulation" on:click={toggleEditorMode}>
       <ReplySolid class="w-6 h-6" />
+    </SpeedDialButton>
+    <SpeedDialButton name="Pack components" on:click={editorComponent.rotateComponents}>
+      <ObjectsColumnSolid class="w-6 h-6" />
     </SpeedDialButton>
     {:else}
     <SpeedDialButton name="Edit" on:click={toggleEditorMode}>
