@@ -35,44 +35,31 @@
     lockScalingY: true,
   };
 
-  function updateLines(opt) {
-    const isGroup = "_objects" in opt.target;
-    if (isGroup) {
-      const objectsInsideGroup = opt.target._objects;
+  function updateLines(event) {
+    const rootObject = event.target;
+    const rootObjectIsGroup = "_objects" in event.target;
 
-      objectsInsideGroup.forEach((obj) => {
-        const finalPointRelative = new Point(obj.left, obj.top);
-        const finalPointAbsolute = finalPointRelative.transform(
-          opt.target.calcTransformMatrix(),
+    let childObjects = rootObjectIsGroup ? rootObject._objects : [rootObject]; 
+
+    childObjects.forEach((childObject) => {
+      const finalPointRelativeToParent = new Point(childObject.left, childObject.top);
+      const finalPointRelativeToGrandparent = finalPointRelativeToParent.transform(
+        event.target.calcTransformMatrix(),
         );
 
-        obj.linksDeparting.forEach((linkId) => {
-          const nodeLine = linesByLinkId.get(linkId);
+      let finalPoint = rootObjectIsGroup
+        ? finalPointRelativeToGrandparent
+        : finalPointRelativeToParent;
 
-          nodeLine.set({
-            x1: finalPointAbsolute.x,
-            y1: finalPointAbsolute.y,
-          });
-        });
-        obj.linksArriving.forEach((linkId) => {
-          const nodeLine = linesByLinkId.get(linkId);
-
-          nodeLine.set({
-            x2: finalPointAbsolute.x,
-            y2: finalPointAbsolute.y,
-          });
-        });
+      childObject.linksDeparting.forEach((linkId) => {
+        const line = linesByLinkId.get(linkId);
+        line.set({ x1: finalPoint.x, y1: finalPoint.y });
       });
-    } else {
-      opt.target.linksDeparting.forEach((linkId) => {
-        const nodeLine = linesByLinkId.get(linkId);
-        nodeLine.set({ x1: opt.target.left, y1: opt.target.top });
+      childObject.linksArriving.forEach((linkId) => {
+        const line = linesByLinkId.get(linkId);
+        line.set({ x2: finalPoint.x, y2: finalPoint.y });
       });
-      opt.target.linksArriving.forEach((linkId) => {
-        const nodeLine = linesByLinkId.get(linkId);
-        nodeLine.set({ x2: opt.target.left, y2: opt.target.top });
-      });
-    }
+    });
   }
 
   onMount(() => {
