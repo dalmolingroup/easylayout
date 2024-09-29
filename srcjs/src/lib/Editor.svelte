@@ -275,6 +275,9 @@
   onDestroy(() => {
     graph.forEachNode((node) => {
       const rect = rectsByNodeId.get(node.id);
+      if ("component" in node.data)
+        layout.setNodePosition(node.id, (rect.left + rect.group.left) - offset, (rect.top + rect.group.top) - offset);
+      else
       layout.setNodePosition(node.id, rect.left - offset, rect.top - offset);
     });
     fabricCanvas.dispose();
