@@ -22,7 +22,6 @@
 
   // <disable-scaling src=fabricjs.github.io/docs/configuring-controls>
   // Removing all six scaling handles, keeping rotating handle
-  ActiveSelection.createControls = () => {
     const controls = controlsUtils.createObjectDefaultControls();
     delete controls.mr;
     delete controls.mb;
@@ -33,8 +32,9 @@
     delete controls.br;
     delete controls.bl;
     delete controls.tl;
-    return { controls: controls };
-  };
+
+  ActiveSelection.createControls = () => { return { controls: controls } };
+  Group.createControls = () => { return { controls: controls } };
 
   // Since the scaling handles are hidden,
   // this part is not stricly necessary
@@ -197,7 +197,6 @@
       if(!groupsByComponentId.has(node.data.component)) {
         console.log("Creating group for component", node.data.component);
         const group = new Group([rect], {
-          hasControls: false,
           originX: "center",
           originY: "center",
           objectCaching: false,
