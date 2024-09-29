@@ -1,3 +1,50 @@
+import { Point } from "fabric";
+
+export function computeHeightAfterRotation(angle, group) {
+  const radians = (angle * Math.PI) / 180;
+
+  // Rotate each point around the center of the list of points
+  const rotatedListOfPoints = group._objects.map((obj) => {
+    let x = obj.left - group.left;
+    let y = obj.top - group.top;
+
+    let xNew = x * Math.cos(radians) - y * Math.sin(radians) + group.left;
+    let yNew = x * Math.sin(radians) + y * Math.cos(radians) + group.top;
+
+    return new Point(xNew, yNew);
+  });
+
+  // Find the height of the rotated list of points
+  let listOfYValues = rotatedListOfPoints.map((point) => point.y);
+  let height = Math.max(...listOfYValues) - Math.min(...listOfYValues);
+
+  return height;
+}
+
+// Binary search optimization
+export function minimizeFunction(fn, ...args) {
+  let left = -90;
+  let right = 90;
+  let precision = 1;
+
+  while (right - left > precision) {
+    let mid1 = left + (right - left) / 3;
+    let mid2 = right - (right - left) / 3;
+
+    let height1 = fn(mid1, ...args);
+    let height2 = fn(mid2, ...args);
+
+    if (height1 < height2) {
+      right = mid2;
+    } else {
+      left = mid1;
+    }
+  }
+
+  let optimalValue = (left + right) / 2;
+  return optimalValue;
+}
+
 // fabricjs.com/fabric-intro-part-5
 export function setUpZoomAndPan(fabricCanvas) {
   fabricCanvas.on("mouse:wheel", function (opt) {

@@ -9,7 +9,11 @@
     Point,
     Group,
   } from "fabric";
-  import { setUpZoomAndPan } from "./utils";
+  import {
+    computeHeightAfterRotation,
+    minimizeFunction,
+    setUpZoomAndPan,
+  } from "./utils";
 
   export let graph;
   export let layout;
@@ -46,58 +50,16 @@
     return newGroup.height;
   }
 
-  function getHeightIfRotated(group, angle) {
-    const radians = (angle * Math.PI) / 180;
-
-    // Rotate each point around the center of the list of points
-    const rotatedListOfPoints = group._objects.map((obj) => {
-      let x = obj.left - group.left;
-      let y = obj.top - group.top;
-
-      let xNew = x * Math.cos(radians) - y * Math.sin(radians) + group.left;
-      let yNew = x * Math.sin(radians) + y * Math.cos(radians) + group.top;
-
-      return new Point(xNew, yNew);
-    });
-
-    // Find the height of the rotated list of points
-    let listOfYValues = rotatedListOfPoints.map((point) => point.y);
-    let height = Math.max(...listOfYValues) - Math.min(...listOfYValues);
-
-    return height;
-  }
-
-  function minimizeGroupHeightThroughRotation(group, componentId) {
-    if (group._objects.length === 1) return group.angle;
-
-    let left = -90;
-    let right = 90;
-    let precision = 1;
-
-    while (right - left > precision) {
-      let mid1 = left + (right - left) / 3;
-      let mid2 = right - (right - left) / 3;
-
-      let height1 = getHeightIfRotated(group, mid1);
-      let height2 = getHeightIfRotated(group, mid2);
-
-      if (height1 < height2) {
-        right = mid2;
-      } else {
-        left = mid1;
-      }
-    }
-
-    let optimalAngle = (left + right) / 2;
-    rotateComponent(group, componentId, optimalAngle);
-    return optimalAngle;
-  }
-
   export function rotateComponents(event) {
-    if (fabricCanvas) {
-      groupsByComponentId.forEach(minimizeGroupHeightThroughRotation);
-      fabricCanvas.renderAll();
-    }
+    if (!fabricCanvas) return;
+
+    groupsByComponentId.forEach((group, componentId) => {
+      if (group._objects.length === 1) return;
+
+      const optimalAngle = minimizeFunction(computeHeightAfterRotation, group);
+      rotateComponent(group, componentId, optimalAngle);
+    });
+    fabricCanvas.renderAll();
   }
 
   // <disable-scaling src=fabricjs.github.io/docs/configuring-controls>
