@@ -42,9 +42,12 @@
     let childObjects = rootObjectIsGroup ? rootObject._objects : [rootObject]; 
 
     childObjects.forEach((childObject) => {
+      // TODO: Handle nested groups recursively
+      if ("_objects" in childObject) return;
+
       const finalPointRelativeToParent = new Point(childObject.left, childObject.top);
       const finalPointRelativeToGrandparent = finalPointRelativeToParent.transform(
-        event.target.calcTransformMatrix(),
+        rootObject.calcTransformMatrix(),
         );
 
       let finalPoint = rootObjectIsGroup
