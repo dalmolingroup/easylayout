@@ -76,7 +76,7 @@
     while (right - left > precision) {
       let mid1 = left + (right - left) / 3;
       let mid2 = right - (right - left) / 3;
-
+      
       let height1 = getHeightIfRotated(group, mid1);
       let height2 = getHeightIfRotated(group, mid2);
 
@@ -278,7 +278,7 @@
       if ("component" in node.data)
         layout.setNodePosition(node.id, (rect.left + rect.group.left) - offset, (rect.top + rect.group.top) - offset);
       else
-      layout.setNodePosition(node.id, rect.left - offset, rect.top - offset);
+        layout.setNodePosition(node.id, rect.left - offset, rect.top - offset);
     });
     fabricCanvas.dispose();
   });
