@@ -51,7 +51,7 @@ const layoutSettings = [
                 "max": -0.1,
                 "step": 0.1,
                 "value": -0.4,
-                "effectorFn": effectorFn,
+                "effectorFn": effectorFn, // TODO: not updating during runtime
             },
             {
                 "id": "timeStep",
