@@ -187,7 +187,7 @@
     <SpeedDialButton name="Simulation" on:click={toggleEditorMode}>
       <ReplySolid class="w-6 h-6" />
     </SpeedDialButton>
-    <SpeedDialButton name="Pack components" on:click={editorComponent.rotateComponents}>
+    <SpeedDialButton name="Pack components" on:click={editorComponent.packComponents}>
       <ObjectsColumnSolid class="w-6 h-6" />
     </SpeedDialButton>
     {:else}

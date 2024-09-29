@@ -14,6 +14,7 @@
     minimizeFunction,
     setUpZoomAndPan,
   } from "./utils";
+  import GrowingPacker from "./packer.growing.js";
 
   export let graph;
   export let layout;
@@ -47,18 +48,71 @@
     updateLines(newGroup);
     newGroup.setCoords();
 
-    return newGroup.height;
+    return newGroup;
   }
 
-  export function rotateComponents(event) {
+  export function packComponents(event) {
     if (!fabricCanvas) return;
 
-    groupsByComponentId.forEach((group, componentId) => {
-      if (group._objects.length === 1) return;
+    const PADDING = 10;
+    let blocks = [];
 
-      const optimalAngle = minimizeFunction(computeHeightAfterRotation, group);
-      rotateComponent(group, componentId, optimalAngle);
+    groupsByComponentId.forEach((group, componentId) => {
+      let g = group;
+
+      // No need to rotate if component only has one node
+      if (group._objects.length > 1) {
+        const optimalAngle = minimizeFunction(computeHeightAfterRotation, group);
+        g = rotateComponent(group, componentId, optimalAngle);
+      }
+
+      blocks.push({ w: g.width + PADDING, h: g.height + PADDING, componentId });
     });
+
+    const lccBoundingBox = fabricCanvas.getObjects().reduce(
+      (acc, obj) => {
+        if (obj.isLCC) {
+          acc.minLeft = Math.min(acc.minLeft, obj.left);
+          acc.minTop = Math.min(acc.minTop, obj.top);
+          acc.maxLeft = Math.max(acc.maxLeft, obj.left);
+          acc.maxTop = Math.max(acc.maxTop, obj.top);
+        }
+        return acc;
+      },
+      {
+        minLeft: Infinity,
+        minTop: Infinity,
+        maxLeft: -Infinity,
+        maxTop: -Infinity,
+      }
+    );
+
+    // Sort blocks by width first and then height, both descending
+    blocks.sort((a, b) => {
+      if (a.w === b.w) return b.h - a.h;
+      return b.w - a.w;
+    });
+
+    // Instantiate GrowingPacker and fit the blocks
+    const packer = new GrowingPacker(
+      lccBoundingBox.maxLeft + PADDING + (blocks[0].w / 2),
+      lccBoundingBox.minTop,
+      lccBoundingBox.maxLeft - lccBoundingBox.minLeft,
+      lccBoundingBox.maxTop - lccBoundingBox.minTop,
+    );
+    packer.fit(blocks);
+
+    // Optionally, you can use the packed blocks to update the positions of the groups
+    blocks.forEach((block) => {
+      if (block.fit) {
+        const group = groupsByComponentId.get(block.componentId);
+        group.left = block.fit.x;
+        group.top = block.fit.y;
+        group.setCoords();
+        updateLines(group);
+      }
+    });
+
     fabricCanvas.renderAll();
   }
 
@@ -168,8 +222,7 @@
         objectCaching: false,
         linksDeparting: linksDeparting,
         linksArriving: linksArriving,
-        nodeId: node.id,
-        id: "_node" + node.id,
+        isLCC: !("component" in node.data),
       });
 
       rectsByNodeId.set(node.id, rect);
