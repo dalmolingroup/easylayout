@@ -59,13 +59,9 @@
       return new Point(xNew, yNew);
     });
 
-    console.log(rotatedListOfPoints);
-
     // Find the height of the rotated list of points
     let listOfYValues = rotatedListOfPoints.map((point) => point.y);
-    console.log(listOfYValues);
     let height = Math.max(...listOfYValues) - Math.min(...listOfYValues);
-    console.log(height);
 
     return {
       rotatedListOfPoints,
@@ -92,10 +88,8 @@
 
       if (height1 < height2) {
         right = mid2;
-        console.log(`angle: ${(left + right) / 2}, height: ${height1}`);
       } else {
         left = mid1;
-        console.log(`angle: ${(left + right) / 2}, height: ${height2}`);
       }
     }
 
@@ -277,7 +271,6 @@
         return;
       }
 
-      console.log("Getting group for component", groupsByComponentId.get(node.data.component));
       groupsByComponentId.get(node.data.component).add(rect);
       return;
     });
