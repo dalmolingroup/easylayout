@@ -21,10 +21,8 @@
 #' }
 #' @export
 easylayout <- function(graph) {
-
-  # From github.com/daniloimparato/easylayout_old/blob/fdb800aec4852dddcdaec11a4bae1dc1c5d770b9/R/vivagraph.R
-  precompute_iterations   = 1000
-  initial_size_multiplier = 75
+  precompute_iterations   <- 1000
+  initial_size_multiplier <- 75
 
   # Nodes must have some sort of identifier.
   # Falls back to 1, 2, 3... if "name" is not available.
