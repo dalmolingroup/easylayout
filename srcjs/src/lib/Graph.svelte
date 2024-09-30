@@ -18,7 +18,6 @@
 
   onMount(() => {
     if (usePrecomputedPositions) {
-      console.log("usePrecomputedPositions", usePrecomputedPositions);
       graph.forEachNode((node) => {
         // Ideally we don't need this check because the nodes
         // should always have precomputed positions
@@ -48,11 +47,6 @@
   });
 
   onDestroy(() => {
-    // graph.forEachNode((node) => {
-    //   let nodePosition = layout.getNodePosition(node.id);
-    //   node.x = nodePosition.x;
-    //   node.y = nodePosition.y;
-    // });
     graph.forEachLink((link) => {
       let linkPositions = layout.getLinkPosition(link.id);
       link.coords = [
