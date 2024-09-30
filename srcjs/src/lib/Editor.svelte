@@ -140,12 +140,16 @@
     graph.forEachNode((node) => {
       const rect = rectsByNodeId.get(node.id);
       if ("component" in node.data) {
-        // TODO: Actually we have to use the group's transform matrix
-        // manually offseting by the group's position will not suffice
+        // TODO: This should be made recursive like updateLines
+        const pointRelativeToParent = new Point(rect.left, rect.top);
+        const pointRelativeToGrandparent = pointRelativeToParent.transform(
+          rect.group.calcTransformMatrix()
+        );
+
         layout.setNodePosition(
           node.id,
-          rect.left + rect.group.left - offset,
-          rect.top + rect.group.top - offset,
+          pointRelativeToGrandparent.x - offset,
+          pointRelativeToGrandparent.y - offset,
         )
       } else {
         layout.setNodePosition(node.id, rect.left - offset, rect.top - offset);
