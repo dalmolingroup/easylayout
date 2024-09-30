@@ -148,32 +148,28 @@
     });
   }
 
-  function updateLines(rootObject) {
+  function updateLines(rootObject, cumulativeMatrix = [1, 0, 0, 1, 0, 0]) {
     const rootObjectIsGroup = "_objects" in rootObject;
 
-    let childObjects = rootObjectIsGroup ? rootObject._objects : [rootObject];
-
-    childObjects.forEach((child) => {
-      // TODO: Handle nested groups recursively
-      if ("_objects" in child) return;
-
-      const pointRelativeToParent = new Point(child.left, child.top);
-      const pointRelativeToGrandparent = pointRelativeToParent.transform(
-        rootObject.calcTransformMatrix(),
-      );
-
-      let finalPoint = rootObjectIsGroup
-        ? pointRelativeToGrandparent
-        : pointRelativeToParent;
-
-      child.linksDeparting.forEach((linkId) => {
-        const line = linesByLinkId.get(linkId);
-        line.set({ x1: finalPoint.x, y1: finalPoint.y });
+    if (rootObjectIsGroup) {
+      rootObject._objects.forEach((child) => {
+        updateLines(child, rootObject.calcTransformMatrix());
       });
-      child.linksArriving.forEach((linkId) => {
-        const line = linesByLinkId.get(linkId);
-        line.set({ x2: finalPoint.x, y2: finalPoint.y });
-      });
+      return;
+    }
+
+    const pointRelativeToParent = new Point(rootObject.left, rootObject.top);
+    const pointRelativeToGrandparent = pointRelativeToParent.transform(
+      rootObjectIsGroup ? rootObject.calcTransformMatrix() : cumulativeMatrix,
+    );
+
+    rootObject.linksDeparting.forEach((linkId) => {
+      const line = linesByLinkId.get(linkId);
+      line.set({ x1: pointRelativeToGrandparent.x, y1: pointRelativeToGrandparent.y });
+    });
+    rootObject.linksArriving.forEach((linkId) => {
+      const line = linesByLinkId.get(linkId);
+      line.set({ x2: pointRelativeToGrandparent.x, y2: pointRelativeToGrandparent.y });
     });
   }
 
