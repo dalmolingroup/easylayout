@@ -87,6 +87,9 @@ easylayout <- function(graph) {
       niter = precompute_iterations
     ) * initial_size_multiplier
 
+    # Centers layout around origin = [0, 0]
+    similarity_layout[, 1] <- similarity_layout[, 1] - mean(similarity_layout[, 1])
+    similarity_layout[, 2] <- similarity_layout[, 2] - mean(similarity_layout[, 2])
 
     igraph::V(graph)$x <- similarity_layout[, 1]
     igraph::V(graph)$y <- similarity_layout[, 2]
