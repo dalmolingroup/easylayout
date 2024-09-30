@@ -48,28 +48,48 @@ easylayout <- function(graph) {
     dplyr::select_if(is.numeric) |>
     dplyr::select_if(has_at_least_two_values)
 
-  # Precomputing only works if there are numeric columns
-  if(all(numeric_columns |> dim()) != 0){
+  factor_columns <- vertices |>
+    dplyr::select(-name) |>
+    dplyr::select_if(is.factor) |>
+    dplyr::mutate(dplyr::across(dplyr::everything(), ~ as.numeric))
 
-    g_v <- numeric_columns |>
-      apply(2, rescale, from = 0.001, to = 1) |>
+  bound_columns <- cbind(numeric_columns, factor_columns)
+  print(head(bound_columns))
+
+  # Precomputing only works if there are numeric columns
+  both_dimensions_not_empty <- all(bound_columns |> dim() > 0)
+
+  if (both_dimensions_not_empty) {
+    print("The following columns will be used to precompute initial positions:")
+    print(colnames(bound_columns))
+
+    distance_matrix <- numeric_columns |>
+      apply(2, rescale, from = 0, to = 1) |>
       dist() |>
       as.matrix()
 
-    g_v <- 1/g_v^2
+    similarity_matrix <- 1 / (distance_matrix^2)
 
-    g_v[g_v == Inf] <- max(g_v[g_v != max(g_v)])
-    # g_v[g_v <= 1] <- 0
+    similarity_matrix[similarity_matrix == Inf] <- max(similarity_matrix[similarity_matrix < Inf])
 
-    row.names(g_v) <- igraph::V(graph)$name
-    colnames(g_v)  <- igraph::V(graph)$name
+    row.names(similarity_matrix) <- igraph::V(graph)$name
+    colnames(similarity_matrix)  <- igraph::V(graph)$name
 
-    dist_graph <- igraph::graph_from_adjacency_matrix(g_v, mode = "undirected", weighted = TRUE, diag = FALSE)
+    similarity_graph <- igraph::graph_from_adjacency_matrix(
+      adjmatrix = similarity_matrix,
+      mode = "undirected",
+      weighted = TRUE,
+      diag = FALSE
+    )
 
-    dist_layout <- igraph::layout_with_fr(dist_graph, niter = precompute_iterations) * initial_size_multiplier
+    similarity_layout <- igraph::layout_with_fr(
+      graph = similarity_graph,
+      niter = precompute_iterations
+    ) * initial_size_multiplier
 
-    igraph::V(graph)$x <- dist_layout[,1]
-    igraph::V(graph)$y <- dist_layout[,2]
+
+    igraph::V(graph)$x <- similarity_layout[, 1]
+    igraph::V(graph)$y <- similarity_layout[, 2]
   }
 
   if(is.matrix(layout)){
