@@ -32,12 +32,15 @@ easylayout <- function(graph) {
     igraph::V(graph)$name <- as.character(1:igraph::vcount(graph))
   }
 
-  g_components <- igraph::components(graph)
-  largest_component <- g_components$csize |> which.max()
-  new_attribute <- ifelse(
-    test = g_components$membership == largest_component,
+  graph_components <- igraph::components(graph)
+  largest_component_id <- graph_components$csize |> which.max()
+
+  # Nodes outside the largest component
+  # will receive special treatment in the web app
+  flag_for_grouping <- ifelse(
+    test = graph_components$membership == largest_component_id,
     yes = NA,
-    no = as.character(g_components$membership)
+    no = as.character(graph_components$membership)
   )
 
   # Magic precomputing
@@ -76,7 +79,7 @@ easylayout <- function(graph) {
     igraph::V(graph)$y <- layout[,2]
   }
 
-  igraph::V(graph)$component <- new_attribute
+  igraph::V(graph)$component <- flag_for_grouping
 
   graph_json <- jsonlite::toJSON(list(
     nodes = igraph::as_data_frame(graph, "vertices"),
