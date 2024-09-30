@@ -136,6 +136,8 @@
     graph.forEachNode((node) => {
       const rect = rectsByNodeId.get(node.id);
       if ("component" in node.data) {
+        // TODO: Actually we have to use the group's transform matrix
+        // manually offseting by the group's position will not suffice
         layout.setNodePosition(
           node.id,
           rect.left + rect.group.left - offset,

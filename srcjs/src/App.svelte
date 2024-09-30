@@ -65,6 +65,8 @@
   }
 
   function toggleEditorMode() {
+    // TODO: discard active selecion if transitioning
+    // from editor to simulation mode: editorComponent.discardActiveSelection();
     $isEditorMode = !$isEditorMode;
     if ($isEditorMode) $isSimulationRunning = false;
     currentState = $isEditorMode ? States.EDITING : States.SIMULATING;
