@@ -1,18 +1,18 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# easylayout: Publication-Ready Networks Directly in your IDE
+# easylayout: an R package for interactive force-directed layouts within RStudio
 
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/dalmolingroup/easylayout/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/dalmolingroup/easylayout/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-Easylayout is an R package that seamlessly bridges manipulation and
+easylayout is an R package that seamlessly bridges manipulation and
 visualization by leveraging the user’s IDE itself (e.g., RStudio,
 VSCode). It is **not** yet another visualization library, but instead
 aims to interconnect existing libraries and streamline their usage into
-the R ecosystem. Easylayout takes an igraph object and serializes it
+the R ecosystem. easylayout takes an igraph object and serializes it
 into a web application integrated with the IDE’s interface through a
 Shiny server. The web application lays out the network by simulating
 attraction and repulsion forces. Simulation parameters can be adjusted
