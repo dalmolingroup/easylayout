@@ -92,10 +92,11 @@ easylayout <- function(graph) {
     igraph::V(graph)$y <- similarity_layout[, 2]
   }
 
-  if(is.matrix(layout)){
-    igraph::V(graph)$x <- layout[,1]
-    igraph::V(graph)$y <- layout[,2]
-  }
+  # TODO: Handle user given layout
+  # if (is.matrix(layout)) {
+  #   igraph::V(graph)$x <- layout[, 1]
+  #   igraph::V(graph)$y <- layout[, 2]
+  # }
 
   igraph::V(graph)$component <- flag_for_grouping
 
