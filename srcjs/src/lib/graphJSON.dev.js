@@ -7,7 +7,8 @@ const graphJSON = {
         { "id": "5", "color": "#ff00ff", "component": "abc" },
         { "id": "6", "color": "#ff00ff", "component": "abc" },
         { "id": "7", "color": "#ff00ff", "component": "def" },
-        { "id": "8", "color": "#ff00ff", "component": "ghi" },
+        { "id": "8", "color": "#ff00ff", "component": "def" },
+        { "id": "9", "color": "#ff00ff", "component": "ghi" },
     ],
     links: [
         { "from": "1", "to": "2" },
@@ -17,6 +18,7 @@ const graphJSON = {
         { "from": "2", "to": "4" },
         { "from": "3", "to": "4" },
         { "from": "5", "to": "6" },
+        { "from": "7", "to": "8" },
     ]
 }
 

@@ -7,30 +7,122 @@
     ActiveSelection,
     controlsUtils,
     Point,
+    Group,
   } from "fabric";
+  import {
+    computeHeightAfterRotation,
+    minimizeFunction,
+    setUpZoomAndPan,
+  } from "./utils";
+  import GrowingPacker from "./packer.growing.js";
 
   export let graph;
+  export let layout;
 
-  let canvas;
+  let canvasHTMLElement;
   let fabricCanvas;
   const offset = 200;
   const linesByLinkId = new Map();
+  const groupsByComponentId = new Map();
+  const rectsByNodeId = new Map();
+
+  function rotateComponent(group, componentId, angle) {
+    group.angle = angle;
+
+    const newGroup = new Group([], {
+      originX: "center",
+      originY: "center",
+      objectCaching: false,
+    });
+
+    group.forEachObject((i) => {
+      group.remove(i);
+      newGroup.add(i);
+    });
+
+    fabricCanvas.remove(group);
+
+    groupsByComponentId.set(componentId, newGroup);
+    fabricCanvas.add(newGroup);
+
+    updateLines(newGroup);
+    newGroup.setCoords();
+
+    return newGroup;
+  }
+
+  export function packComponents(event) {
+    if (!fabricCanvas) return;
+
+    const PADDING = 10;
+    let blocks = [];
+
+    groupsByComponentId.forEach((group, componentId) => {
+      let g = group;
+
+      // No need to rotate if component only has one node
+      if (group._objects.length > 1) {
+        const optimalAngle = minimizeFunction(computeHeightAfterRotation, group);
+        g = rotateComponent(group, componentId, optimalAngle);
+      }
+
+      blocks.push({ w: g.width + PADDING, h: g.height + PADDING, componentId });
+    });
+
+    const lccBoundingBox = fabricCanvas.getObjects().reduce(
+      (acc, obj) => {
+        if (obj.isLCC) {
+          acc.minLeft = Math.min(acc.minLeft, obj.left);
+          acc.minTop = Math.min(acc.minTop, obj.top);
+          acc.maxLeft = Math.max(acc.maxLeft, obj.left);
+          acc.maxTop = Math.max(acc.maxTop, obj.top);
+        }
+        return acc;
+      },
+      {
+        minLeft: Infinity,
+        minTop: Infinity,
+        maxLeft: -Infinity,
+        maxTop: -Infinity,
+      }
+    );
+
+    // Sort blocks by width first and then height, both descending
+    blocks.sort((a, b) => {
+      if (a.w === b.w) return b.h - a.h;
+      return b.w - a.w;
+    });
+
+    // Instantiate GrowingPacker and fit the blocks
+    const packer = new GrowingPacker(
+      lccBoundingBox.maxLeft + PADDING + (blocks[0].w / 2),
+      lccBoundingBox.minTop,
+      lccBoundingBox.maxLeft - lccBoundingBox.minLeft,
+      lccBoundingBox.maxTop - lccBoundingBox.minTop,
+    );
+    packer.fit(blocks);
+
+    blocks.forEach((block) => {
+      if (block.fit) {
+        const group = groupsByComponentId.get(block.componentId);
+        group.left = block.fit.x;
+        group.top = block.fit.y;
+        group.setCoords();
+        updateLines(group);
+      }
+    });
+
+    fabricCanvas.renderAll();
+  }
 
   // <disable-scaling src=fabricjs.github.io/docs/configuring-controls>
   // Removing all six scaling handles, keeping rotating handle
-  ActiveSelection.createControls = () => {
-    const controls = controlsUtils.createObjectDefaultControls();
-    delete controls.mr;
-    delete controls.mb;
-    delete controls.mb;
-    delete controls.ml;
-    delete controls.mt;
-    delete controls.tr;
-    delete controls.br;
-    delete controls.bl;
-    delete controls.tl;
-    return { controls: controls };
+  const controls = {
+    controls: { mtr: controlsUtils.createObjectDefaultControls().mtr },
   };
+
+  ActiveSelection.createControls = () => controls;
+  Group.createControls = () => controls;
 
   // Since the scaling handles are hidden,
   // this part is not stricly necessary
@@ -40,92 +132,63 @@
     lockScalingY: true,
   };
 
-  function updateLines(opt) {
-    const isGroup = "_objects" in opt.target;
-    if (isGroup) {
-      const objectsInsideGroup = opt.target._objects;
+  export function discardActiveSelection() {
+    fabricCanvas.discardActiveObject();
+  }
 
-      objectsInsideGroup.forEach((obj) => {
-        const finalPointRelative = new Point(obj.left, obj.top);
-        const finalPointAbsolute = finalPointRelative.transform(
-          opt.target.calcTransformMatrix(),
+  export function persistNodePositions() {
+    graph.forEachNode((node) => {
+      const rect = rectsByNodeId.get(node.id);
+      if ("component" in node.data) {
+        // TODO: This should be made recursive like updateLines
+        const pointRelativeToParent = new Point(rect.left, rect.top);
+        const pointRelativeToGrandparent = pointRelativeToParent.transform(
+          rect.group.calcTransformMatrix()
         );
 
-        obj.linksDeparting.forEach((linkId) => {
-          const nodeLine = linesByLinkId.get(linkId);
+        layout.setNodePosition(
+          node.id,
+          pointRelativeToGrandparent.x - offset,
+          pointRelativeToGrandparent.y - offset,
+        )
+      } else {
+        layout.setNodePosition(node.id, rect.left - offset, rect.top - offset);
+      }
+    });
+  }
 
-          nodeLine.set({
-            x1: finalPointAbsolute.x,
-            y1: finalPointAbsolute.y,
-          });
-        });
-        obj.linksArriving.forEach((linkId) => {
-          const nodeLine = linesByLinkId.get(linkId);
+  function updateLines(rootObject, cumulativeMatrix = [1, 0, 0, 1, 0, 0]) {
+    const rootObjectIsGroup = "_objects" in rootObject;
 
-          nodeLine.set({
-            x2: finalPointAbsolute.x,
-            y2: finalPointAbsolute.y,
-          });
-        });
+    if (rootObjectIsGroup) {
+      rootObject._objects.forEach((child) => {
+        updateLines(child, rootObject.calcTransformMatrix());
       });
-    } else {
-      opt.target.linksDeparting.forEach((linkId) => {
-        const nodeLine = linesByLinkId.get(linkId);
-        nodeLine.set({ x1: opt.target.left, y1: opt.target.top });
-      });
-      opt.target.linksArriving.forEach((linkId) => {
-        const nodeLine = linesByLinkId.get(linkId);
-        nodeLine.set({ x2: opt.target.left, y2: opt.target.top });
-      });
+      return;
     }
+
+    const pointRelativeToParent = new Point(rootObject.left, rootObject.top);
+    const pointRelativeToGrandparent = pointRelativeToParent.transform(
+      rootObjectIsGroup ? rootObject.calcTransformMatrix() : cumulativeMatrix,
+    );
+
+    rootObject.linksDeparting.forEach((linkId) => {
+      const line = linesByLinkId.get(linkId);
+      line.set({ x1: pointRelativeToGrandparent.x, y1: pointRelativeToGrandparent.y });
+    });
+    rootObject.linksArriving.forEach((linkId) => {
+      const line = linesByLinkId.get(linkId);
+      line.set({ x2: pointRelativeToGrandparent.x, y2: pointRelativeToGrandparent.y });
+    });
   }
 
   onMount(() => {
-    fabricCanvas = new Canvas(canvas, {
+    fabricCanvas = new Canvas(canvasHTMLElement, {
       fireRightClick: true,
       stopContextMenu: true,
     });
 
-    // <zoom-and-pan src=fabricjs.com/fabric-intro-part-5>
-    fabricCanvas.on("mouse:wheel", function (opt) {
-      let delta = opt.e.deltaY;
-      let zoom = fabricCanvas.getZoom();
-      zoom *= 0.999 ** delta;
-      if (zoom > 20) zoom = 20;
-      if (zoom < 0.01) zoom = 0.01;
-      fabricCanvas.zoomToPoint({ x: opt.e.offsetX, y: opt.e.offsetY }, zoom);
-      opt.e.preventDefault();
-      opt.e.stopPropagation();
-    });
-
-    fabricCanvas.on("mouse:down", function (opt) {
-      if (opt.e.button === 2) {
-        fabricCanvas.isDragging = true;
-        fabricCanvas.selection = false;
-        fabricCanvas.lastPosX = opt.e.clientX;
-        fabricCanvas.lastPosY = opt.e.clientY;
-      }
-    });
-
-    fabricCanvas.on("mouse:move", function (opt) {
-      if (fabricCanvas.isDragging) {
-        let vpt = fabricCanvas.viewportTransform;
-        vpt[4] += opt.e.clientX - fabricCanvas.lastPosX;
-        vpt[5] += opt.e.clientY - fabricCanvas.lastPosY;
-        fabricCanvas.requestRenderAll();
-        fabricCanvas.lastPosX = opt.e.clientX;
-        fabricCanvas.lastPosY = opt.e.clientY;
-      }
-    });
-
-    fabricCanvas.on("mouse:up", function (opt) {
-      // on mouse up we want to recalculate new interaction
-      // for all objects, so we call setViewportTransform
-      fabricCanvas.setViewportTransform(fabricCanvas.viewportTransform);
-      fabricCanvas.isDragging = false;
-      fabricCanvas.selection = true;
-    });
-    // </zoom-and-pan>
+    setUpZoomAndPan(fabricCanvas);
 
     // TODO: Refactor and rename variables for clarity
     // fabricjs.com/using-transformations
@@ -134,8 +197,8 @@
     // medium.com/@luizzappa/the-transformation-matrix-in-fabric-js-fb7f733d0624
     // OBRIGADO @luizzappa VC MERECE UM BEIJO
     fabricCanvas.on({
-      "object:moving": updateLines,
-      "object:rotating": updateLines,
+      "object:moving": (event) => updateLines(event.target),
+      "object:rotating": (event) => updateLines(event.target),
     });
 
     graph.forEachLink((link) => {
@@ -164,11 +227,13 @@
             linksArriving.push(link.id);
           }
         });
-      };
+      }
+
+      const nodePos = layout.getNodePosition(node.id);
 
       const rect = new Rect({
-        left: node.x + offset,
-        top: node.y + offset,
+        left: nodePos.x + offset,
+        top: nodePos.y + offset,
         fill: node.data.color || "#000000",
         width: node.data.size || 10,
         height: node.data.size || 10,
@@ -179,27 +244,42 @@
         objectCaching: false,
         linksDeparting: linksDeparting,
         linksArriving: linksArriving,
+        isLCC: !("component" in node.data),
       });
 
-      fabricCanvas.add(rect);
+      rectsByNodeId.set(node.id, rect);
+
+      if (!node.data.component) {
+        fabricCanvas.add(rect);
+        return;
+      }
+
+      if (!groupsByComponentId.has(node.data.component)) {
+        const group = new Group([rect], {
+          originX: "center",
+          originY: "center",
+          objectCaching: false,
+        });
+
+        groupsByComponentId.set(node.data.component, group);
+        fabricCanvas.add(group);
+        return;
+      }
+
+      groupsByComponentId.get(node.data.component).add(rect);
+      return;
     });
 
     fabricCanvas.requestRenderAll();
   });
 
   onDestroy(() => {
-    const canvasObjects = fabricCanvas.getObjects();
-    let currentNodeIndex = 0;
-    graph.forEachNode((node) => {
-      node.x = canvasObjects[currentNodeIndex].left - offset;
-      node.y = canvasObjects[currentNodeIndex].top - offset;
-      currentNodeIndex++;
-    });
+    persistNodePositions();
     fabricCanvas.dispose();
   });
 </script>
 
-<canvas bind:this={canvas} width="600" height="400"></canvas>
+<canvas bind:this={canvasHTMLElement} width="600" height="400"></canvas>
 
 <style>
 </style>

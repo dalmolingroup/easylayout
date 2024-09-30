@@ -5,6 +5,7 @@
 
   export let graph;
   export let layout;
+  export let usePrecomputedPositions;
 
   let container;
   let renderer;
@@ -16,11 +17,14 @@
   }
 
   onMount(() => {
-    graph.forEachNode((node) => {
-      // Ideally we don't need this check because the nodes
-      // should always have precomputed positions
-      if (node.data.x) layout.setNodePosition(node.id, node.data.x, node.data.y);
-    });
+    if (usePrecomputedPositions) {
+      graph.forEachNode((node) => {
+        // Ideally we don't need this check because the nodes
+        // should always have precomputed positions
+        if (node.data.x) layout.setNodePosition(node.id, node.data.x, node.data.y);
+      });
+      usePrecomputedPositions = false;
+    }
 
     let graphics = Viva.Graph.View.webglGraphics();
 
@@ -43,11 +47,6 @@
   });
 
   onDestroy(() => {
-    graph.forEachNode((node) => {
-      let nodePosition = layout.getNodePosition(node.id);
-      node.x = nodePosition.x;
-      node.y = nodePosition.y;
-    });
     graph.forEachLink((link) => {
       let linkPositions = layout.getLinkPosition(link.id);
       link.coords = [

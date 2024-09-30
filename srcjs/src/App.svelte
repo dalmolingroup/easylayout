@@ -14,7 +14,7 @@
   // Speed dial imports
   import { fly } from "svelte/transition";
   import { SpeedDial, SpeedDialButton } from 'flowbite-svelte';
-  import { AdjustmentsHorizontalSolid, DrawSquareSolid, DotsHorizontalOutline, PauseSolid, PlaySolid, UploadSolid, ReplySolid } from 'flowbite-svelte-icons';
+  import { AdjustmentsHorizontalSolid, DrawSquareSolid, DotsHorizontalOutline, PauseSolid, PlaySolid, UploadSolid, ReplySolid, ObjectsColumnSolid, } from 'flowbite-svelte-icons';
 
   // Select imports
   import { Label, Select, Range } from "flowbite-svelte";
@@ -26,10 +26,14 @@
 
   let currentState = States.SIMULATING;
 
+  let editorComponent;
+
   let graph;
   let layoutInstance;
 
   let selectedLayoutName = "viva";
+
+  let usePrecomputedPositions = true;
 
   $: selectedLayout = layoutSettings.find((l) => l.value === selectedLayoutName);
   $: if (graph) {
@@ -61,9 +65,17 @@
   }
 
   function toggleEditorMode() {
-    $isEditorMode = !$isEditorMode;
-    if ($isEditorMode) $isSimulationRunning = false;
-    currentState = $isEditorMode ? States.EDITING : States.SIMULATING;
+    if ($isEditorMode) {
+      // Discarding active selection is just an easy way to avoid transforming
+      // the relative selection coordinates to canvas coordinates
+      editorComponent.discardActiveSelection();
+      $isSimulationRunning = false;
+      $isEditorMode = false;
+      currentState = States.SIMULATING;
+    } else {
+      $isEditorMode = true;
+      currentState = States.EDITING;
+    }
   }
 
   let sidebarExpanded = true;
@@ -74,6 +86,9 @@
 
   function transmitCoordinatesBackToShiny() {
     let coordinates = [];
+
+    if ($isEditorMode) editorComponent.persistNodePositions();
+
     graph.forEachNode(function(node) {
       var pos = layoutInstance.getNodePosition(node.id);
       coordinates.push({ x: pos.x, y: pos.y });
@@ -94,7 +109,7 @@
   });
 </script>
 
-{#if sidebarExpanded}
+{#if sidebarExpanded && !$isEditorMode}
 <aside
   id="expanded-sidebar"
   class="fixed top-0 left-0 z-40 w-48 h-screen overflow-hidden"
@@ -158,10 +173,10 @@
   <div class="flex flex-grow bg-slate-50">
     {#if graph && !$isEditorMode}
       {#key selectedLayoutName}
-        <Graph {graph} layout={layoutInstance} />
+        <Graph {graph} layout={layoutInstance} bind:usePrecomputedPositions />
       {/key}
     {:else if $isEditorMode}
-      <Editor {graph} />
+      <Editor {graph} layout={layoutInstance} bind:this={editorComponent}/>
     {:else}
       <p>Loading graph....</p>
     {/if}
@@ -184,6 +199,9 @@
     {#if $isEditorMode}
     <SpeedDialButton name="Simulation" on:click={toggleEditorMode}>
       <ReplySolid class="w-6 h-6" />
+    </SpeedDialButton>
+    <SpeedDialButton name="Pack components" on:click={editorComponent.packComponents}>
+      <ObjectsColumnSolid class="w-6 h-6" />
     </SpeedDialButton>
     {:else}
     <SpeedDialButton name="Edit" on:click={toggleEditorMode}>
