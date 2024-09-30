@@ -102,7 +102,6 @@
     );
     packer.fit(blocks);
 
-    // Optionally, you can use the packed blocks to update the positions of the groups
     blocks.forEach((block) => {
       if (block.fit) {
         const group = groupsByComponentId.get(block.componentId);
