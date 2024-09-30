@@ -25,12 +25,6 @@ easylayout <- function(graph) {
   # From github.com/daniloimparato/easylayout_old/blob/fdb800aec4852dddcdaec11a4bae1dc1c5d770b9/R/vivagraph.R
   precompute_iterations   = 1000
   initial_size_multiplier = 75
-  pin_nodes               = FALSE
-  pin_threshold           = 4
-  pinned_cols             = 2
-  pinned_rows             = "auto"
-  pinned_size_multiplier  = 20
-  lcc_margin_left         = 300
 
   # Nodes must have some sort of identifier.
   # Falls back to 1, 2, 3... if "name" is not available.
@@ -38,13 +32,13 @@ easylayout <- function(graph) {
     igraph::V(graph)$name <- as.character(1:igraph::vcount(graph))
   }
 
-  if (pinned_rows == "auto") {
-    pinned_rows <- 0
-  }
-
-  subgraphs <- igraph::decompose.graph(graph)
-  subgraphs_sizes <- sapply(subgraphs, igraph::vcount)
-  subgraphs_to_pin <- subgraphs_sizes <= pin_threshold
+  g_components <- igraph::components(graph)
+  largest_component <- g_components$csize |> which.max()
+  new_attribute <- ifelse(
+    test = g_components$membership == largest_component,
+    yes = NA,
+    no = as.character(g_components$membership)
+  )
 
   # Magic precomputing
   vertices <- igraph::as_data_frame(graph, "vertices")
@@ -81,6 +75,8 @@ easylayout <- function(graph) {
     igraph::V(graph)$x <- layout[,1]
     igraph::V(graph)$y <- layout[,2]
   }
+
+  igraph::V(graph)$component <- new_attribute
 
   graph_json <- jsonlite::toJSON(list(
     nodes = igraph::as_data_frame(graph, "vertices"),
