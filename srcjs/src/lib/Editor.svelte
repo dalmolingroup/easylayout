@@ -133,6 +133,21 @@
     lockScalingY: true,
   };
 
+  export function persistNodePositions() {
+    graph.forEachNode((node) => {
+      const rect = rectsByNodeId.get(node.id);
+      if ("component" in node.data) {
+        layout.setNodePosition(
+          node.id,
+          rect.left + rect.group.left - offset,
+          rect.top + rect.group.top - offset,
+        )
+      } else {
+        layout.setNodePosition(node.id, rect.left - offset, rect.top - offset);
+      }
+    });
+  }
+
   function updateLines(rootObject) {
     const rootObjectIsGroup = "_objects" in rootObject;
 
@@ -209,9 +224,11 @@
         });
       }
 
+      const nodePos = layout.getNodePosition(node.id);
+
       const rect = new Rect({
-        left: node.x + offset,
-        top: node.y + offset,
+        left: nodePos.x + offset,
+        top: nodePos.y + offset,
         fill: node.data.color || "#000000",
         width: node.data.size || 10,
         height: node.data.size || 10,
@@ -252,17 +269,7 @@
   });
 
   onDestroy(() => {
-    graph.forEachNode((node) => {
-      const rect = rectsByNodeId.get(node.id);
-      if ("component" in node.data)
-        layout.setNodePosition(
-          node.id,
-          rect.left + rect.group.left - offset,
-          rect.top + rect.group.top - offset,
-        );
-      else
-        layout.setNodePosition(node.id, rect.left - offset, rect.top - offset);
-    });
+    persistNodePositions();
     fabricCanvas.dispose();
   });
 </script>

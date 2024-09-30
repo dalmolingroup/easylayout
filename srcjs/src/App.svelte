@@ -33,6 +33,8 @@
 
   let selectedLayoutName = "viva";
 
+  let usePrecomputedPositions = true;
+
   $: selectedLayout = layoutSettings.find((l) => l.value === selectedLayoutName);
   $: if (graph) {
     let settings = {};
@@ -76,6 +78,9 @@
 
   function transmitCoordinatesBackToShiny() {
     let coordinates = [];
+
+    if ($isEditorMode) editorComponent.persistNodePositions();
+
     graph.forEachNode(function(node) {
       var pos = layoutInstance.getNodePosition(node.id);
       coordinates.push({ x: pos.x, y: pos.y });
@@ -160,7 +165,7 @@
   <div class="flex flex-grow bg-slate-50">
     {#if graph && !$isEditorMode}
       {#key selectedLayoutName}
-        <Graph {graph} layout={layoutInstance} />
+        <Graph {graph} layout={layoutInstance} bind:usePrecomputedPositions />
       {/key}
     {:else if $isEditorMode}
       <Editor {graph} layout={layoutInstance} bind:this={editorComponent}/>
