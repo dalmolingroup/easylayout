@@ -110,7 +110,7 @@ easylayout <- function(graph) {
 
   layout <- matrix(layout, ncol = 2, byrow = TRUE)
 
-  layout[,2] <- -1 * layout[,2]
+  layout[, 2] <- -1 * layout[, 2]
 
   layout
 }
