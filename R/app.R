@@ -107,8 +107,7 @@ easylayout <- function(graph) {
 
   server <- function(input, output, session) {
     shiny::observeEvent(input$svelteAppMounted, {
-      print("svelteAppMounted:")
-      print(input$svelteAppMounted)
+      print("easylayout is ready. Happy layouting!")
       if (input$svelteAppMounted) {
         session$sendCustomMessage(
           type = "dataTransferredFromServer",
