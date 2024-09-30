@@ -132,6 +132,10 @@
     lockScalingY: true,
   };
 
+  export function discardActiveSelection() {
+    fabricCanvas.discardActiveObject();
+  }
+
   export function persistNodePositions() {
     graph.forEachNode((node) => {
       const rect = rectsByNodeId.get(node.id);

@@ -65,11 +65,17 @@
   }
 
   function toggleEditorMode() {
-    // TODO: discard active selecion if transitioning
-    // from editor to simulation mode: editorComponent.discardActiveSelection();
-    $isEditorMode = !$isEditorMode;
-    if ($isEditorMode) $isSimulationRunning = false;
-    currentState = $isEditorMode ? States.EDITING : States.SIMULATING;
+    if ($isEditorMode) {
+      // Discarding active selection is just an easy way to avoid transforming
+      // the relative selection coordinates to canvas coordinates
+      editorComponent.discardActiveSelection();
+      $isSimulationRunning = false;
+      $isEditorMode = false;
+      currentState = States.SIMULATING;
+    } else {
+      $isEditorMode = true;
+      currentState = States.EDITING;
+    }
   }
 
   let sidebarExpanded = true;
