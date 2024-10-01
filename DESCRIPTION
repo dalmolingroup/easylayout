@@ -18,3 +18,4 @@ Suggests:
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 URL: https://dalmolingroup.github.io/easylayout/
+BugReports: https://github.com/dalmolingroup/easylayout/issues
