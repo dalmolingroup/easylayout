@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# easylayout: an R package for interactive force-directed layouts within RStudio
+# easylayout: an R package for interactive force-directed layouts within RStudio <img src="https://github.com/user-attachments/assets/87ce78cf-53cc-4c07-8238-b138d62a4ca6" height="140" align="right" style="padding-left:10px;" />
 
 <!-- badges: start -->
 
