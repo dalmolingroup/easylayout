@@ -21,25 +21,24 @@
 #' }
 #' @export
 easylayout <- function(graph) {
-  precompute_iterations   <- 1000
-  initial_size_multiplier <- 75
-
   # Nodes must have some sort of identifier.
   # Falls back to 1, 2, 3... if "name" is not available.
   if (is.null(igraph::V(graph)$name)) {
     igraph::V(graph)$name <- as.character(1:igraph::vcount(graph))
   }
 
-  graph_components <- igraph::components(graph)
-  largest_component_id <- graph_components$csize |> which.max()
+  if (is.matrix(layout)) {
+    print("Loading user-specified initial layout...")
+    return(start_app(graph, layout))
+  }
 
-  # Nodes outside the largest component
-  # will receive special treatment in the web app
-  flag_for_grouping <- ifelse(
-    test = graph_components$membership == largest_component_id,
-    yes = NA,
-    no = as.character(graph_components$membership)
-  )
+  hash <- igraph::as_edgelist(graph) |> digest::digest()
+  cached_layout <- get_layout(hash)
+
+  if (!is.null(cached_layout)) {
+    print("Using cached layout from previous run...")
+    return(start_app(graph, cached_layout$layout))
+  }
 
   # Magic precomputing
   vertices <- igraph::as_data_frame(graph, "vertices")
@@ -51,55 +50,44 @@ easylayout <- function(graph) {
   factor_columns <- vertices |>
     dplyr::select(-name) |>
     dplyr::select_if(is.factor) |>
-    dplyr::mutate(dplyr::across(dplyr::everything(), ~ as.numeric))
+    dplyr::mutate(dplyr::across(dplyr::everything(), ~as.numeric))
 
   bound_columns <- cbind(numeric_columns, factor_columns)
-  print(head(bound_columns))
 
   # Precomputing only works if there are numeric columns
-  both_dimensions_not_empty <- all(bound_columns |> dim() > 0)
+  columns_not_empty <- all(bound_columns |> dim() > 0)
 
-  if (both_dimensions_not_empty) {
-    print("The following columns will be used to precompute initial positions:")
+  if (columns_not_empty) {
+    print("easylayout will use the following columns to precompute initial positions:")
     print(colnames(bound_columns))
 
-    distance_matrix <- numeric_columns |>
-      apply(2, rescale, from = 0, to = 1) |>
-      dist() |>
-      as.matrix()
-
-    similarity_matrix <- 1 / (distance_matrix^2)
-
-    similarity_matrix[similarity_matrix == Inf] <- max(similarity_matrix[similarity_matrix < Inf])
-
-    row.names(similarity_matrix) <- igraph::V(graph)$name
-    colnames(similarity_matrix)  <- igraph::V(graph)$name
-
-    similarity_graph <- igraph::graph_from_adjacency_matrix(
-      adjmatrix = similarity_matrix,
-      mode = "undirected",
-      weighted = TRUE,
-      diag = FALSE
-    )
-
-    similarity_layout <- igraph::layout_with_fr(
-      graph = similarity_graph,
-      niter = precompute_iterations
-    ) * initial_size_multiplier
-
-    # Centers layout around origin = [0, 0]
-    similarity_layout[, 1] <- similarity_layout[, 1] - mean(similarity_layout[, 1])
-    similarity_layout[, 2] <- similarity_layout[, 2] - mean(similarity_layout[, 2])
-
-    igraph::V(graph)$x <- similarity_layout[, 1]
-    igraph::V(graph)$y <- similarity_layout[, 2]
+    precomputed_layout <- precompute_layout(graph = graph, cols = bound_columns)
+    return(start_app(graph, precomputed_layout))
   }
 
-  # TODO: Handle user given layout
-  # if (is.matrix(layout)) {
-  #   igraph::V(graph)$x <- layout[, 1]
-  #   igraph::V(graph)$y <- layout[, 2]
-  # }
+  # If any of the previous attempts at retrieving an initial layout failed,
+  # then we just run the app without any initial layout
+  return(start_app(graph))
+}
+
+start_app <- function(graph, layout) {
+  if (!missing(layout)) {
+    # Browser stuff generally considers [0, 0] to be the top-left corner
+    # of the screen, therefore we need to invert the Y axis
+    igraph::V(graph)$y <- layout[, 2] * -1
+    igraph::V(graph)$x <- layout[, 1]
+  }
+
+  graph_components <- igraph::components(graph)
+  largest_component_id <- graph_components$csize |> which.max()
+
+  # Only nodes outside the largest component
+  # will receive special treatment in the web app
+  flag_for_grouping <- ifelse(
+    test = graph_components$membership == largest_component_id,
+    yes = NA,
+    no = as.character(graph_components$membership)
+  )
 
   igraph::V(graph)$component <- flag_for_grouping
 
@@ -136,9 +124,63 @@ easylayout <- function(graph) {
 
   layout[, 2] <- -1 * layout[, 2]
 
+  hash <- igraph::as_edgelist(graph) |> digest::digest()
+
+  set_layout(hash, list(layout = layout, opts = "lalala"))
+
   layout
+}
+
+precompute_layout <- function(graph, cols) {
+  LAYOUT_SIZE_FACTOR <- 75
+  
+  distance_matrix <- cols |>
+    apply(2, rescale, from = 0, to = 1) |>
+    dist() |>
+    as.matrix()
+
+  similarity_matrix <- 1 / (distance_matrix^2)
+
+  similarity_matrix[similarity_matrix == Inf] <- max(similarity_matrix[similarity_matrix < Inf])
+
+  row.names(similarity_matrix) <- igraph::V(graph)$name
+  colnames(similarity_matrix) <- igraph::V(graph)$name
+
+  similarity_graph <- igraph::graph_from_adjacency_matrix(
+    adjmatrix = similarity_matrix,
+    mode = "undirected",
+    weighted = TRUE,
+    diag = FALSE
+  )
+
+  similarity_layout <- igraph::layout_with_fr(
+    graph = similarity_graph,
+    niter = 1000
+  ) * LAYOUT_SIZE_FACTOR
+
+  # Centers layout around origin = [0, 0]
+  similarity_layout[, 1] <- similarity_layout[, 1] - mean(similarity_layout[, 1])
+  similarity_layout[, 2] <- similarity_layout[, 2] - mean(similarity_layout[, 2])
+
+  similarity_layout
 }
 
 rescale <- function(x, from, to) approxfun(range(x), c(from, to))(x)
 
 has_at_least_two_values <- function(x) length(unique(x)) > 1
+
+# https://hydroecology.net/implementing-session-cache-r-packages/
+# https://github.com/tidyverse/ggplot2/blob/main/R/plot-last.R
+.layout_store <- function() {
+  .layout_map <- NULL
+
+  list(
+    get = function(hash) .layout_map[[hash]],
+    set = function(hash, value) .layout_map[[hash]] <<- value
+  )
+}
+.store <- .layout_store()
+
+set_layout <- function(hash, value) .store$set(hash, value)
+
+get_layout <- function(hash) .store$get(hash)
