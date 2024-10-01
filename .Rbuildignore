@@ -20,3 +20,4 @@
 ^\.github$
 ^CRAN-SUBMISSION$
 ^LICENSE\.md$
+^_pkgdown\.yml$
