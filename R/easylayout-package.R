@@ -15,7 +15,7 @@
 #' itself.
 #'
 #' @docType package
-#' @name easylayout
+#' @name easylayout-package
 #' @keywords internal
 "_PACKAGE"
 
