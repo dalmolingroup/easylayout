@@ -190,7 +190,6 @@
 
     setUpZoomAndPan(fabricCanvas);
 
-    // TODO: Refactor and rename variables for clarity
     // fabricjs.com/using-transformations
     // fabricjs.github.io/docs/understanding-fabricjs/transformations
     // davelage.com/posts/fabric-selection-group-positioning
