@@ -1,14 +1,14 @@
 Package: easylayout
-Title: What the Package Does (One Line, Title Case)
+Title: An R package for interactive force-directed layouts within RStudio
 Version: 0.0.0.9000
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
+    person("Danilo", "Imparato", email= "first.last@example.com", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0001-6979-4951"))
+Description: easylayout is an R package that seamlessly bridges manipulation and visualization by leveraging the user’s IDE itself (e.g., RStudio, VSCode).
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.2.9000
 Imports: 
     digest,
     dplyr,
@@ -18,3 +18,5 @@ Imports:
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
+URL: https://dalmolingroup.github.io/easylayout/
+BugReports: https://github.com/dalmolingroup/easylayout/issues
