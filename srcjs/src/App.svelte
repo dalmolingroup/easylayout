@@ -1,6 +1,7 @@
 <script>
   import "./app.css";
   import Graph from "./lib/Graph.svelte";
+  import Simulation from "./lib/Simulation.svelte";
   import Editor from "./lib/Editor.svelte";
   import Viva from "vivagraphjs";
   import layoutSettings from "./lib/layoutSettings.js";
@@ -18,6 +19,8 @@
 
   // Select imports
   import { Label, Select, Range } from "flowbite-svelte";
+  import { SimulationWrapperCosmo } from "./lib/SimulationWrapperCosmo";
+  import { SimulationWrapperViva } from "./lib/SimulationWrapperViva";
 
   const States = {
     SIMULATING: "simulating",
@@ -30,6 +33,8 @@
 
   let graph;
   let layoutInstance;
+
+  let simulation;
 
   let selectedLayoutName = "viva";
 
@@ -62,6 +67,10 @@
       nodeLoadTransform(graphJSON),
       linkLoadTransform(graphJSON),
     );
+
+    simulation = new SimulationWrapperViva(graphJSON);
+    globalThis.simulation = simulation;
+    console.log(simulation);
   }
 
   function toggleEditorMode() {
@@ -181,6 +190,10 @@
       <p>Loading graph....</p>
     {/if}
   </div>
+  
+  {#if simulation}
+    <Simulation {simulation} />
+  {/if}
 
   <SpeedDial color="dark" defaultClass="fixed end-6 top-6" pill={false}>
     <DotsHorizontalOutline slot="icon" class="w-8 h-8" />
