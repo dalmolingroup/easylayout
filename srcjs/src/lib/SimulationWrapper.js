@@ -4,10 +4,11 @@ export class SimulationWrapper {
       throw new TypeError("Cannot construct SimulationWrapper instances directly");
     }
     this.graphData = graphData;
+    this.started = false;
   }
 
-  start() {
-    throw new Error("Method 'start()' must be implemented.");
+  start(containerElement, nodePositions) {
+    throw new Error("Method 'start(containerElement, nodePositions)' must be implemented.");
   }
 
   pause() {

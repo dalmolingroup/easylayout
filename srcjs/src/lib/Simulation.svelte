@@ -3,29 +3,21 @@
   import { isSimulationRunning } from "../store.js";
 
   export let simulation;
+  export let nodePositions;
 
   let container;
 
-  $: if (simulation && !$isSimulationRunning) {
-    simulation.pause();
-  } else if (simulation && $isSimulationRunning) {
-    simulation.resume();
+  $: if (simulation.started) {
+    if (!$isSimulationRunning) simulation.pause();
+    else simulation.resume();
   }
 
   onMount(() => {
-    simulation.start(container);
+    simulation.start(container, nodePositions);
   });
 
   onDestroy(() => {
-    // graph.forEachLink((link) => {
-    //   let linkPositions = layout.getLinkPosition(link.id);
-    //   link.coords = [
-    //     linkPositions.from.x,
-    //     linkPositions.from.y,
-    //     linkPositions.to.x,
-    //     linkPositions.to.y
-    //   ];
-    // });
+    nodePositions = simulation.getNodePositions();
     simulation.destroy();
   });
 </script>

@@ -91,9 +91,19 @@ start_app <- function(graph, layout) {
 
   igraph::V(graph)$component <- flag_for_grouping
 
+  selected_node_cols <- graph |>
+    igraph::as_data_frame("vertices") |>
+    dplyr::select(
+      id = name,
+      initialX = x,
+      initalY = y,
+      component,
+      tidyselect::any_of(c("color", "size"))
+    )
+
   graph_json <- jsonlite::toJSON(list(
-    nodes = igraph::as_data_frame(graph, "vertices"),
-    links = igraph::as_data_frame(graph, "edges")
+    nodes = selected_node_cols,
+    links = igraph::as_data_frame(graph, "edges")[, 1:2]
   ))
 
   server <- function(input, output, session) {

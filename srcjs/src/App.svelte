@@ -1,16 +1,10 @@
 <script>
   import "./app.css";
-  import Graph from "./lib/Graph.svelte";
   import Simulation from "./lib/Simulation.svelte";
   import Editor from "./lib/Editor.svelte";
-  import Viva from "vivagraphjs";
   import layoutSettings from "./lib/layoutSettings.js";
   import { isSimulationRunning, isEditorMode } from "./store.js";
   import { onMount } from "svelte";
-  import {
-    nodeLoadTransform,
-    linkLoadTransform,
-  } from "./lib/customTransformFromRToViva";
 
   // Speed dial imports
   import { fly } from "svelte/transition";
@@ -20,7 +14,8 @@
   // Select imports
   import { Label, Select, Range } from "flowbite-svelte";
   import { SimulationWrapperCosmo } from "./lib/SimulationWrapperCosmo";
-  import { SimulationWrapperViva } from "./lib/SimulationWrapperViva";
+  import { SimulationWrapperViva, SimulationWrapperD3 } from "./lib/SimulationWrapperViva";
+  // import { SimulationWrapperD3 } from "./lib/SimulationWrapperD3";
 
   const States = {
     SIMULATING: "simulating",
@@ -31,23 +26,32 @@
 
   let editorComponent;
 
-  let graph;
-  let layoutInstance;
-
+  let graphData;
   let simulation;
 
   let selectedLayoutName = "viva";
 
-  let usePrecomputedPositions = true;
+  let nodePositions = {};
+
+  let settings = {};
+
+  const availableSimulations = {
+    "viva": SimulationWrapperViva,
+    "d3": SimulationWrapperD3,
+    "cosmo": SimulationWrapperCosmo,
+  }
 
   $: selectedLayout = layoutSettings.find((l) => l.value === selectedLayoutName);
-  $: if (graph) {
-    let settings = {};
+  $: if (simulation) {
     selectedLayout.settings.forEach((setting) => {
       settings[setting.id] = setting.value;
     });
-    layoutInstance = selectedLayout.spec(graph, settings);
   };
+
+  $: if (graphData) {
+    simulation = new availableSimulations[selectedLayoutName](graphData);
+  };
+
 
   function toggleSimulation() {
     $isSimulationRunning = !$isSimulationRunning;
@@ -55,22 +59,13 @@
   }
 
   async function handleShinyData(graphJSON) {
-    console.log("Received Shiny data:");
-    console.log(graphJSON);
+    console.log("Received Shiny data:", graphJSON);
 
     if (import.meta.env.DEV) {
       graphJSON = (await import("./lib/graphJSON.dev.js")).default;
     }
 
-    graph = Viva.Graph.serializer().loadFromJSON(
-      graphJSON,
-      nodeLoadTransform(graphJSON),
-      linkLoadTransform(graphJSON),
-    );
-
-    simulation = new SimulationWrapperViva(graphJSON);
-    globalThis.simulation = simulation;
-    console.log(simulation);
+    graphData = graphJSON;
   }
 
   function toggleEditorMode() {
@@ -94,13 +89,14 @@
   }
 
   function transmitCoordinatesBackToShiny() {
-    let coordinates = [];
+    const coordinates = [];
 
     if ($isEditorMode) editorComponent.persistNodePositions();
 
-    graph.forEachNode(function(node) {
-      var pos = layoutInstance.getNodePosition(node.id);
-      coordinates.push({ x: pos.x, y: pos.y });
+    const nodePositions = simulation.getNodePositions();
+
+    Object.entries(nodePositions).forEach(([nodeId, pos]) => {
+      coordinates.push(pos);
     });
 
     Shiny.setInputValue("coordinates", coordinates);
@@ -167,7 +163,7 @@
               max={setting.max}
               value={setting.value}
               step={setting.step}
-              on:change={setting.effectorFn(layoutInstance, setting.id)}
+              on:change={simulation.updateLayoutSetting(setting.id)}
             />
           </li>
         {/each}
@@ -180,20 +176,16 @@
 <main class="container flex flex-col h-screen">
 
   <div class="flex flex-grow bg-slate-50">
-    {#if graph && !$isEditorMode}
+    {#if simulation && !$isEditorMode}
       {#key selectedLayoutName}
-        <Graph {graph} layout={layoutInstance} bind:usePrecomputedPositions />
+        <Simulation {simulation} bind:nodePositions />
       {/key}
     {:else if $isEditorMode}
-      <Editor {graph} layout={layoutInstance} bind:this={editorComponent}/>
+      <Editor {simulation} bind:nodePositions bind:this={editorComponent}/>
     {:else}
       <p>Loading graph....</p>
     {/if}
   </div>
-  
-  {#if simulation}
-    <Simulation {simulation} />
-  {/if}
 
   <SpeedDial color="dark" defaultClass="fixed end-6 top-6" pill={false}>
     <DotsHorizontalOutline slot="icon" class="w-8 h-8" />
