@@ -19,18 +19,21 @@ knitr::opts_chunk$set(
 [![R-CMD-check](https://github.com/dalmolingroup/easylayout/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/dalmolingroup/easylayout/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-easylayout is an R package that seamlessly bridges manipulation and
-visualization by leveraging the user's IDE itself (e.g., RStudio, VSCode). It
-is **not** yet another visualization library, but instead aims to interconnect
-existing libraries and streamline their usage into the R ecosystem. easylayout
-takes an igraph object and serializes it into a web application integrated with
-the IDE's interface through a Shiny server. The web application lays out the
-network by simulating attraction and repulsion forces. Simulation parameters
-can be adjusted in real-time. An editing mode allows moving and rotating nodes.
-The implementation aims for performance, so that even lower-end devices are
-able to work with relatively large networks. Once the user finishes tinkering
-the layout, it is sent back to the R session to be plotted through popular
-libraries like ggplot2 or even the base package itself.
+easylayout is an R package that leverages interactive force simulations within
+the IDE itself (e.g., RStudio, VSCode). It is **not** yet another visualization
+library, but instead aims to interconnect existing libraries and streamline
+their usage into the R ecosystem.
+
+![](https://github.com/user-attachments/assets/1b91cb11-77ef-47a5-b529-3805a9785a76)
+
+easylayout takes an igraph object and serializes it into a web application 
+integrated with the IDE's interface through a Shiny server. The web application
+lays out the network by simulating attraction and repulsion forces. Simulation
+parameters can be adjusted in real-time. An editing mode allows moving and
+rotating nodes. The implementation aims for performance, so that even lower-end
+devices are able to work with relatively large networks. Once the user finishes
+tinkering the layout, it is sent back to the R session to be plotted through
+popular libraries like ggplot2 or even the base package itself.
 
 ## Installation
 
@@ -57,7 +60,7 @@ igraph::V(g)$label <- NA
 igraph::V(g)$size <- sample(1:5, number_of_vertices, replace = TRUE)
 igraph::V(g)$color <- sample(rainbow(5), number_of_vertices, replace = TRUE)
 
-plot(g, layout = easylayout)
+plot(g, layout = easylayout, vertex.label = NA, margin = 0)
 ```
 
 ## Future work

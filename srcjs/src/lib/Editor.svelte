@@ -16,11 +16,12 @@
   } from "./utils";
   import GrowingPacker from "./packer.growing.js";
 
-  export let graph;
-  export let layout;
+  export let simulation;
+  export let nodePositions;
 
   let canvasHTMLElement;
   let fabricCanvas;
+
   const offset = 200;
   const linesByLinkId = new Map();
   const groupsByComponentId = new Map();
@@ -51,6 +52,26 @@
     return newGroup;
   }
 
+  function getLCCBBox(canvas) {
+    return canvas.getObjects().reduce(
+      (acc, obj) => {
+        if (obj.isLCC) {
+          acc.minLeft = Math.min(acc.minLeft, obj.left);
+          acc.minTop = Math.min(acc.minTop, obj.top);
+          acc.maxLeft = Math.max(acc.maxLeft, obj.left);
+          acc.maxTop = Math.max(acc.maxTop, obj.top);
+        }
+        return acc;
+      },
+      {
+        minLeft: Infinity,
+        minTop: Infinity,
+        maxLeft: -Infinity,
+        maxTop: -Infinity,
+      }
+    );
+  }
+
   export function packComponents(event) {
     if (!fabricCanvas) return;
 
@@ -69,23 +90,7 @@
       blocks.push({ w: g.width + PADDING, h: g.height + PADDING, componentId });
     });
 
-    const lccBoundingBox = fabricCanvas.getObjects().reduce(
-      (acc, obj) => {
-        if (obj.isLCC) {
-          acc.minLeft = Math.min(acc.minLeft, obj.left);
-          acc.minTop = Math.min(acc.minTop, obj.top);
-          acc.maxLeft = Math.max(acc.maxLeft, obj.left);
-          acc.maxTop = Math.max(acc.maxTop, obj.top);
-        }
-        return acc;
-      },
-      {
-        minLeft: Infinity,
-        minTop: Infinity,
-        maxLeft: -Infinity,
-        maxTop: -Infinity,
-      }
-    );
+    const lccBoundingBox = getLCCBBox(fabricCanvas);
 
     // Sort blocks by width first and then height, both descending
     blocks.sort((a, b) => {
@@ -137,23 +142,24 @@
   }
 
   export function persistNodePositions() {
-    graph.forEachNode((node) => {
+    simulation.forEachNode((node) => {
       const rect = rectsByNodeId.get(node.id);
-      if ("component" in node.data) {
-        // TODO: This should be made recursive like updateLines
-        const pointRelativeToParent = new Point(rect.left, rect.top);
-        const pointRelativeToGrandparent = pointRelativeToParent.transform(
-          rect.group.calcTransformMatrix()
-        );
 
-        layout.setNodePosition(
-          node.id,
-          pointRelativeToGrandparent.x - offset,
-          pointRelativeToGrandparent.y - offset,
-        )
-      } else {
-        layout.setNodePosition(node.id, rect.left - offset, rect.top - offset);
+      if (rect.isLCC) {
+        nodePositions[node.id] = { x: rect.left, y: rect.top };
+        return;
       }
+
+      // TODO: This should be made recursive like updateLines
+      const pointRelativeToParent = new Point(rect.left, rect.top);
+      const pointRelativeToGrandparent = pointRelativeToParent.transform(
+        rect.group.calcTransformMatrix()
+      );
+
+      nodePositions[node.id] = {
+        x: pointRelativeToGrandparent.x,
+        y: pointRelativeToGrandparent.y,
+      };
     });
   }
 
@@ -200,8 +206,11 @@
       "object:rotating": (event) => updateLines(event.target),
     });
 
-    graph.forEachLink((link) => {
-      const coords = link.coords.map((coord) => coord + offset);
+    simulation.forEachLink((link) => {
+      const start = nodePositions[link.fromId || link.source];
+      const end = nodePositions[link.toId || link.target];
+      const coords = [start.x, start.y, end.x, end.y];
+
       const line = new Line(coords, {
         fill: null,
         stroke: "#909090",
@@ -214,7 +223,7 @@
       fabricCanvas.add(line);
     });
 
-    graph.forEachNode((node) => {
+    simulation.forEachNode((node) => {
       const linksDeparting = [];
       const linksArriving = [];
 
@@ -228,14 +237,19 @@
         });
       }
 
-      const nodePos = layout.getNodePosition(node.id);
+      const nodePos = nodePositions[node.id];
+
+      const component =
+        "data" in node
+        ? node.data.component || null
+        : node.component || null;
 
       const rect = new Rect({
-        left: nodePos.x + offset,
-        top: nodePos.y + offset,
-        fill: node.data.color || "#000000",
-        width: node.data.size || 10,
-        height: node.data.size || 10,
+        left: nodePos.x,
+        top: nodePos.y,
+        fill: node.color || node.data.color || "#000000",
+        width: node.size || node.data.size || 10,
+        height: node.size || node.data.size || 10,
         angle: 90,
         hasControls: false,
         originX: "center",
@@ -243,33 +257,52 @@
         objectCaching: false,
         linksDeparting: linksDeparting,
         linksArriving: linksArriving,
-        isLCC: !("component" in node.data),
+        isLCC: component === null,
       });
 
       rectsByNodeId.set(node.id, rect);
 
-      if (!node.data.component) {
+      if (component === null) {
         fabricCanvas.add(rect);
         return;
       }
 
-      if (!groupsByComponentId.has(node.data.component)) {
+      if (!groupsByComponentId.has(component)) {
         const group = new Group([rect], {
           originX: "center",
           originY: "center",
           objectCaching: false,
         });
 
-        groupsByComponentId.set(node.data.component, group);
+        groupsByComponentId.set(component, group);
         fabricCanvas.add(group);
         return;
       }
 
-      groupsByComponentId.get(node.data.component).add(rect);
+      groupsByComponentId.get(component).add(rect);
       return;
     });
 
     fabricCanvas.requestRenderAll();
+
+    const lccBoundingBox = getLCCBBox(fabricCanvas);
+
+    const lccCenterX = (lccBoundingBox.minLeft + lccBoundingBox.maxLeft) / 2
+    const lccCenterY = (lccBoundingBox.minTop + lccBoundingBox.maxTop) / 2
+
+    // github.com/anvaka/VivaGraphJS/blob/6373e7e83f1a878a8bfb9a7f15ed84825f62030b/demos/other/precompute-advanced.html#L66
+    const graphSize = Math.min(lccBoundingBox.maxLeft - lccBoundingBox.minLeft, lccBoundingBox.maxTop - lccBoundingBox.minTop);
+    const screenSize = Math.min(canvasHTMLElement.clientWidth, canvasHTMLElement.clientHeight);
+    const desiredScale = screenSize / graphSize;
+
+    const canvasCenter = new Point(
+      -canvasHTMLElement.clientWidth / 2 + lccCenterX,
+      -canvasHTMLElement.clientHeight / 2 + lccCenterY
+    )
+    
+    // stackoverflow.com/questions/54395045/fabricjs-programmatically-pan-canvas-on-mobile-browser
+    // fabricCanvas.zoomToPoint(canvasCenter, fabricCanvas.getZoom() / (desiredScale * 0.1));
+    fabricCanvas.absolutePan(canvasCenter);
   });
 
   onDestroy(() => {

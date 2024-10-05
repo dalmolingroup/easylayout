@@ -23,6 +23,7 @@ itself.
 Useful links:
 \itemize{
   \item \url{https://dalmolingroup.github.io/easylayout/}
+  \item Report bugs at \url{https://github.com/dalmolingroup/easylayout/issues}
 }
 
 }

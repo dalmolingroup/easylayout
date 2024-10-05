@@ -1,15 +1,10 @@
 <script>
   import "./app.css";
-  import Graph from "./lib/Graph.svelte";
+  import Simulation from "./lib/Simulation.svelte";
   import Editor from "./lib/Editor.svelte";
-  import Viva from "vivagraphjs";
   import layoutSettings from "./lib/layoutSettings.js";
   import { isSimulationRunning, isEditorMode } from "./store.js";
   import { onMount } from "svelte";
-  import {
-    nodeLoadTransform,
-    linkLoadTransform,
-  } from "./lib/customTransformFromRToViva";
 
   // Speed dial imports
   import { fly } from "svelte/transition";
@@ -17,7 +12,9 @@
   import { AdjustmentsHorizontalSolid, DrawSquareSolid, DotsHorizontalOutline, PauseSolid, PlaySolid, UploadSolid, ReplySolid, ObjectsColumnSolid, } from 'flowbite-svelte-icons';
 
   // Select imports
-  import { Label, Select, Range } from "flowbite-svelte";
+  import { Label, Select } from "flowbite-svelte";
+  import { SimulationWrapperCosmo } from "./lib/SimulationWrapperCosmo";
+  import { SimulationWrapperViva, SimulationWrapperD3 } from "./lib/SimulationWrapperViva";
 
   const States = {
     SIMULATING: "simulating",
@@ -28,21 +25,32 @@
 
   let editorComponent;
 
-  let graph;
-  let layoutInstance;
+  let graphData;
+  let simulation;
 
   let selectedLayoutName = "viva";
 
-  let usePrecomputedPositions = true;
+  let nodePositions = {};
+
+  let settings = {};
+
+  const availableSimulations = {
+    "viva": SimulationWrapperViva,
+    "d3": SimulationWrapperD3,
+    "cosmo": SimulationWrapperCosmo,
+  }
 
   $: selectedLayout = layoutSettings.find((l) => l.value === selectedLayoutName);
-  $: if (graph) {
-    let settings = {};
+  $: if (simulation) {
     selectedLayout.settings.forEach((setting) => {
       settings[setting.id] = setting.value;
     });
-    layoutInstance = selectedLayout.spec(graph, settings);
   };
+
+  $: if (graphData) {
+    simulation = new availableSimulations[selectedLayoutName](graphData);
+  };
+
 
   function toggleSimulation() {
     $isSimulationRunning = !$isSimulationRunning;
@@ -50,18 +58,13 @@
   }
 
   async function handleShinyData(graphJSON) {
-    console.log("Received Shiny data:");
-    console.log(graphJSON);
+    console.log("Received Shiny data:", graphJSON);
 
     if (import.meta.env.DEV) {
       graphJSON = (await import("./lib/graphJSON.dev.js")).default;
     }
 
-    graph = Viva.Graph.serializer().loadFromJSON(
-      graphJSON,
-      nodeLoadTransform(graphJSON),
-      linkLoadTransform(graphJSON),
-    );
+    graphData = graphJSON;
   }
 
   function toggleEditorMode() {
@@ -85,13 +88,14 @@
   }
 
   function transmitCoordinatesBackToShiny() {
-    let coordinates = [];
+    const coordinates = [];
 
     if ($isEditorMode) editorComponent.persistNodePositions();
 
-    graph.forEachNode(function(node) {
-      var pos = layoutInstance.getNodePosition(node.id);
-      coordinates.push({ x: pos.x, y: pos.y });
+    const nodePositions = simulation.getNodePositions();
+
+    Object.entries(nodePositions).forEach(([nodeId, pos]) => {
+      coordinates.push(pos);
     });
 
     Shiny.setInputValue("coordinates", coordinates);
@@ -112,12 +116,12 @@
 {#if sidebarExpanded && !$isEditorMode}
 <aside
   id="expanded-sidebar"
-  class="fixed top-0 left-0 z-40 w-48 h-screen overflow-hidden"
+  class="fixed top-0 left-0 z-40 w-56 h-screen"
   aria-label="Sidebar"
   in:fly={{ x: -200, duration: 300 }}
   out:fly={{ x: -200, duration: 300 }}
 >
-  <div class="h-full px-3 py-4 overflow-hidden bg-gray-50 dark:bg-gray-800">
+  <div class="h-full px-3 py-4 overflow-y-scroll bg-gray-50 dark:bg-gray-800">
     <ul class="space-y-2 font-medium text-lg">
       <li>
         <p class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white group">
@@ -149,18 +153,21 @@
         in:fly={{ delay: 250, duration: 200 }}
       >
         {#each selectedLayout.settings as setting}
-          <li>
-            <Label>{setting.name}</Label>
-            <Range
-              size="sm"
-              id={setting.id}
-              min={setting.min}
-              max={setting.max}
-              value={setting.value}
-              step={setting.step}
-              on:change={setting.effectorFn(layoutInstance, setting.id)}
-            />
-          </li>
+          {#if setting.shown}
+            <li>
+              <label for="steps-range" class="block text-sm font-medium text-gray-900 dark:text-gray-300">{setting.name}</label>
+              <input
+                type="range"
+                id={setting.id}
+                min={setting.min}
+                max={setting.max}
+                value={setting.value}
+                step={setting.step}
+                on:input={simulation.updateLayoutSetting(setting.id)}
+                class="w-full h-1 mb-4 range-sm bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+              />
+            </li>
+          {/if}
         {/each}
       </ul>
     {/key}
@@ -171,12 +178,12 @@
 <main class="container flex flex-col h-screen">
 
   <div class="flex flex-grow bg-slate-50">
-    {#if graph && !$isEditorMode}
+    {#if simulation && !$isEditorMode}
       {#key selectedLayoutName}
-        <Graph {graph} layout={layoutInstance} bind:usePrecomputedPositions />
+        <Simulation {simulation} bind:nodePositions />
       {/key}
     {:else if $isEditorMode}
-      <Editor {graph} layout={layoutInstance} bind:this={editorComponent}/>
+      <Editor {simulation} bind:nodePositions bind:this={editorComponent}/>
     {:else}
       <p>Loading graph....</p>
     {/if}
