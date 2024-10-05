@@ -24,7 +24,7 @@ the IDE itself (e.g., RStudio, VSCode). It is **not** yet another visualization
 library, but instead aims to interconnect existing libraries and streamline
 their usage into the R ecosystem.
 
-![easylayout_settings](https://github.com/user-attachments/assets/1b91cb11-77ef-47a5-b529-3805a9785a76)
+![](https://github.com/user-attachments/assets/1b91cb11-77ef-47a5-b529-3805a9785a76)
 
 easylayout takes an igraph object and serializes it into a web application 
 integrated with the IDE's interface through a Shiny server. The web application
