@@ -8,8 +8,8 @@ export class SimulationWrapperCosmo extends SimulationWrapper {
     super(graphData);
     this.config = {
       nodeColor: (d) => d.color,
-      nodeSize: (d) => d.size,
-      nodeSizeScale: 0.5,
+      nodeSize: (d) => Math.pow(d.size, 1/2),
+      nodeSizeScale: 2,
       linkWidth: 2,
       fitViewOnInit: true,
       linkArrows: false,
@@ -19,7 +19,9 @@ export class SimulationWrapperCosmo extends SimulationWrapper {
       showDynamicLabels: false,
       showHoveredNodeLabel: false,
       renderHoveredNodeRing: false,
-      disableSimulation: true,
+      // disableSimulation: true,
+      spaceSize: 128,
+      // fitViewDelay: 0,
     };
 
     this.firstLoad = true;
@@ -65,6 +67,7 @@ export class SimulationWrapperCosmo extends SimulationWrapper {
   start(containerElement, nodePositions) {
     const firstNode = this.graphData.nodes[0];
     const nodeFirstColumnName = Object.keys(firstNode)[0];
+    const nodePositionsEmpty = Object.keys(nodePositions).length <= 0;
 
     this.nodes = this.graphData.nodes.map((node) => {
       const nodeId = String(node[nodeFirstColumnName]);
@@ -77,13 +80,13 @@ export class SimulationWrapperCosmo extends SimulationWrapper {
         links: this.#nodeLinks.get(nodeId),
       };
 
-      if (Object.keys(nodePositions).length > 0) {
+      if (nodePositionsEmpty) {
+        transformedNode.x = node.initialX;
+        transformedNode.y = node.initialY;
+      } else {
         const nodePos = nodePositions[nodeId];
         transformedNode.x = nodePos.x;
         transformedNode.y = -nodePos.y;
-      } else {
-        transformedNode.x = node.initialX;
-        transformedNode.y = node.initialY;
       }
 
       return transformedNode;
@@ -101,7 +104,6 @@ export class SimulationWrapperCosmo extends SimulationWrapper {
 
   resume() {
     if (this.firstLoad) {
-      this.graph.setConfig({ disableSimulation: false });
       this.graph.start();
       this.firstLoad = false;
     } else {
@@ -110,7 +112,31 @@ export class SimulationWrapperCosmo extends SimulationWrapper {
   }
 
   getNodePositions() {
-    return this.graph.getNodePositions();
+    const nodePositions = this.graph.getNodePositions();
+    const transformedPositions = {};
+
+    Object.entries(nodePositions).forEach(([nodeId, pos]) => {
+      const transformedPosition = this.graph.spaceToScreenPosition([pos.x, pos.y]);
+      transformedPositions[nodeId] = {
+        x: transformedPosition[0],
+        y: transformedPosition[1],
+      };
+    });
+
+    const numberOfNodes = this.nodes.length;
+    const centerX = Object.values(transformedPositions).reduce((acc, curr) => acc + curr.x, 0) / numberOfNodes;
+    const centerY = Object.values(transformedPositions).reduce((acc, curr) => acc + curr.y, 0) / numberOfNodes;
+
+    Object.entries(transformedPositions).forEach(([nodeId, pos]) => {
+      transformedPositions[nodeId] = {
+        x: pos.x - centerX,
+        y: pos.y - centerY,
+      };
+    });
+
+    console.log("transformedPositions", transformedPositions);
+
+    return transformedPositions;
   }
 
   forEachNode(fn) {
