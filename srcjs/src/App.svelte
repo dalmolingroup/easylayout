@@ -12,10 +12,9 @@
   import { AdjustmentsHorizontalSolid, DrawSquareSolid, DotsHorizontalOutline, PauseSolid, PlaySolid, UploadSolid, ReplySolid, ObjectsColumnSolid, } from 'flowbite-svelte-icons';
 
   // Select imports
-  import { Label, Select, Range } from "flowbite-svelte";
+  import { Label, Select } from "flowbite-svelte";
   import { SimulationWrapperCosmo } from "./lib/SimulationWrapperCosmo";
   import { SimulationWrapperViva, SimulationWrapperD3 } from "./lib/SimulationWrapperViva";
-  // import { SimulationWrapperD3 } from "./lib/SimulationWrapperD3";
 
   const States = {
     SIMULATING: "simulating",
@@ -154,18 +153,21 @@
         in:fly={{ delay: 250, duration: 200 }}
       >
         {#each selectedLayout.settings as setting}
-          <li>
-            <Label>{setting.name}</Label>
-            <Range
-              size="sm"
-              id={setting.id}
-              min={setting.min}
-              max={setting.max}
-              value={setting.value}
-              step={setting.step}
-              on:change={simulation.updateLayoutSetting(setting.id)}
-            />
-          </li>
+          {#if setting.shown}
+            <li>
+              <label for="steps-range" class="block text-sm font-medium text-gray-900 dark:text-gray-300">{setting.name}</label>
+              <input
+                type="range"
+                id={setting.id}
+                min={setting.min}
+                max={setting.max}
+                value={setting.value}
+                step={setting.step}
+                on:input={simulation.updateLayoutSetting(setting.id)}
+                class="w-full h-1 mb-4 range-sm bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+              />
+            </li>
+          {/if}
         {/each}
       </ul>
     {/key}
