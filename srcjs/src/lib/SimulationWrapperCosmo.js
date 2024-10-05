@@ -150,6 +150,7 @@ export class SimulationWrapperCosmo extends SimulationWrapper {
   updateLayoutSetting(settingId) {
     return (e) => {
       this.graph.setConfig({ [settingId]: + e.target.value });
+      this.graph.start();
     }
   }
 
