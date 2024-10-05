@@ -134,8 +134,6 @@ export class SimulationWrapperCosmo extends SimulationWrapper {
       };
     });
 
-    console.log("transformedPositions", transformedPositions);
-
     return transformedPositions;
   }
 
@@ -149,7 +147,7 @@ export class SimulationWrapperCosmo extends SimulationWrapper {
 
   updateLayoutSetting(settingId) {
     return (e) => {
-        this.graph.setConfig({ [settingId]: e.target.value });
+      this.graph.setConfig({ [settingId]: + e.target.value });
     }
   }
 
