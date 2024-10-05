@@ -164,7 +164,6 @@
   }
 
   function updateLines(rootObject, cumulativeMatrix = [1, 0, 0, 1, 0, 0]) {
-    console.log("linesByLinkId:", linesByLinkId);
     const rootObjectIsGroup = "_objects" in rootObject;
 
     if (rootObjectIsGroup) {
@@ -181,7 +180,6 @@
 
     rootObject.linksDeparting.forEach((linkId) => {
       const line = linesByLinkId.get(linkId);
-      console.log("line:", line);
       line.set({ x1: pointRelativeToGrandparent.x, y1: pointRelativeToGrandparent.y });
     });
     rootObject.linksArriving.forEach((linkId) => {
@@ -208,11 +206,7 @@
       "object:rotating": (event) => updateLines(event.target),
     });
 
-    console.log("Drawing lines based on:", nodePositions);
-
     simulation.forEachLink((link) => {
-      console.log("Current link:", link, nodePositions[link.fromId]);
-
       const start = nodePositions[link.fromId || link.source];
       const end = nodePositions[link.toId || link.target];
       const coords = [start.x, start.y, end.x, end.y];
@@ -225,13 +219,11 @@
         evented: false,
         objectCaching: false,
       });
-      console.log("linesByLinkId.set " + link.id, line);
       linesByLinkId.set(link.id, line);
       fabricCanvas.add(line);
     });
 
     simulation.forEachNode((node) => {
-      console.log("Drawing node", node);
       const linksDeparting = [];
       const linksArriving = [];
 
@@ -269,9 +261,6 @@
       });
 
       rectsByNodeId.set(node.id, rect);
-
-      
-      console.log("component, lcc, node", component, rect.isLCC, node);
 
       if (component === null) {
         fabricCanvas.add(rect);
