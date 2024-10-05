@@ -165,7 +165,7 @@ precompute_layout <- function(graph, cols) {
 
   similarity_layout <- igraph::layout_with_fr(
     graph = similarity_graph,
-    niter = 1000
+    niter = 500
   ) * LAYOUT_SIZE_FACTOR
 
   # Centers layout around origin = [0, 0]
