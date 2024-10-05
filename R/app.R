@@ -96,7 +96,7 @@ start_app <- function(graph, layout) {
     dplyr::select(
       id = name,
       initialX = x,
-      initalY = y,
+      initialY = y,
       component,
       tidyselect::any_of(c("color", "size"))
     )
