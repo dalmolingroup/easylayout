@@ -19,6 +19,8 @@ export class SimulationWrapperCosmo extends SimulationWrapper {
       showDynamicLabels: false,
       showHoveredNodeLabel: false,
       renderHoveredNodeRing: false,
+      // showLabelsFor: [],
+      // nodeLabelAccessor: (d) => null,
       // disableSimulation: true,
       spaceSize: 128,
       // fitViewDelay: 0,
