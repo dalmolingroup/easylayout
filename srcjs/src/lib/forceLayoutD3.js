@@ -1,4 +1,12 @@
-import { forceSimulation, forceManyBody, forceLink } from 'd3-force';
+import {
+  forceSimulation,
+  forceManyBody,
+  forceLink,
+  forceCenter,
+  forceCollide,
+  forceX,
+  forceY,
+} from 'd3-force';
 
 // const settings = {
 //     springLength : 20,
@@ -32,19 +40,48 @@ export default function d3Layout(graph, settings) {
   
       linkIndexLookup.set(link.id, d3Link);
     })
+
+    const fCharge = forceManyBody()
+      .strength(settings.chargeStrength)
+      .theta(settings.theta)
+      .distanceMin(settings.distanceMin)
+      .distanceMax(settings.distanceMax);
+
+    const fLink = forceLink(links)
+      .distance(settings.linkDistance)
+      // .strength(settings.linkStrength) // TODO: slider could multiply accessor result
+      .iterations(settings.linkIterations);
+
+    const fCenter = forceCenter()
+      .x(settings.centerX)
+      .y(settings.centerY)
+      .strength(settings.centerStrength);
+
+    const fCollide = forceCollide()
+      .radius(settings.collisionRadius)
+      .strength(settings.collisionStrength);
+
+    const fX = forceX()
+      .x(settings.x)
+      .strength(settings.xStrength);
+
+    const fY = forceY()
+      .y(settings.y)
+      .strength(settings.yStrength);
+
+    // const fRadial = forceRadial()
+    //   .radius(settings.radialRadius)
+    //   .strength(settings.radialStrength);
   
-    var simulation = forceSimulation(nodes)
-          .alphaDecay(settings.alphaDecay)
-          .velocityDecay(settings.velocityDecay)
-        .force("charge", forceManyBody()
-          .strength(settings.strength))
-        .force("link", forceLink(links)
-          .distance(settings.distance)
-          .iterations(settings.iterations)
-          // TODO: Slider could multiply accessor result
-          // d3js.org/d3-force/link#link_strength
-          // .strength(settings.springCoeff)
-        );
+    const simulation = forceSimulation(nodes)
+      .alphaDecay(settings.alphaDecay)
+      .velocityDecay(settings.velocityDecay)
+      .force("charge", fCharge)
+      .force("link", fLink)
+      .force("center", fCenter)
+      .force("collide", fCollide)
+      .force("x", fX)
+      .force("y", fY);
   
     simulation.stop();
   

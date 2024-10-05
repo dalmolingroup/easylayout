@@ -132,13 +132,42 @@ export class SimulationWrapperD3 extends SimulationWrapperBase {
     const acessor = {
       alphaDecay: this.layout.simulator.alphaDecay,
       velocityDecay: this.layout.simulator.velocityDecay,
-      strength: this.layout.simulator.force("charge").strength,
-      distance: this.layout.simulator.force("link").distance,
-      iterations: this.layout.simulator.force("link").iterations,
-    }
+  
+      // Many-body force
+      chargeStrength: this.layout.simulator.force("charge").strength,
+      theta: this.layout.simulator.force("charge").theta,
+      distanceMin: this.layout.simulator.force("charge").distanceMin,
+      distanceMax: this.layout.simulator.force("charge").distanceMax,
+  
+      // Link force
+      linkDistance: this.layout.simulator.force("link").distance,
+      linkStrength: this.layout.simulator.force("link").strength,
+      linkIterations: this.layout.simulator.force("link").iterations,
+  
+      // Centering force
+      centerX: this.layout.simulator.force("center").x,
+      centerY: this.layout.simulator.force("center").y,
+      centerStrength: this.layout.simulator.force("center").strength,
+  
+      // Collision force
+      collisionRadius: this.layout.simulator.force("collide").radius,
+      collisionStrength: this.layout.simulator.force("collide").strength, 
+      collisionIterations: this.layout.simulator.force("collide").iterations, 
+  
+      // Positioning forces
+      x: this.layout.simulator.force("x").x,
+      y: this.layout.simulator.force("y").y,
+      xStrength: this.layout.simulator.force("x").strength,
+      yStrength: this.layout.simulator.force("y").strength,
+  
+      // Radial force
+      // radialRadius: this.layout.simulator.force("radial").radius,
+      // radialStrength: this.layout.simulator.force("radial").strength,
+    };
 
     return (e) => {
       acessor[settingId](e.target.value);
+      this.layout.simulator.alpha(1).restart();
     }
   }
 }
