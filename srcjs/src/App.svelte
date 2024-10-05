@@ -116,12 +116,12 @@
 {#if sidebarExpanded && !$isEditorMode}
 <aside
   id="expanded-sidebar"
-  class="fixed top-0 left-0 z-40 w-48 h-screen overflow-hidden"
+  class="fixed top-0 left-0 z-40 w-56 h-screen"
   aria-label="Sidebar"
   in:fly={{ x: -200, duration: 300 }}
   out:fly={{ x: -200, duration: 300 }}
 >
-  <div class="h-full px-3 py-4 overflow-hidden bg-gray-50 dark:bg-gray-800">
+  <div class="h-full px-3 py-4 overflow-y-scroll bg-gray-50 dark:bg-gray-800">
     <ul class="space-y-2 font-medium text-lg">
       <li>
         <p class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white group">
