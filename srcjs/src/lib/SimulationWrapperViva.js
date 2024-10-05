@@ -50,25 +50,10 @@ export class SimulationWrapperBase extends SimulationWrapper {
     this.started = true;
     this.renderer.pause();
 
-    const graphRect = this.layout.getGraphRect();
-    const graphSize = Math.min(graphRect.x2 - graphRect.x1, graphRect.y2 - graphRect.y1);
-    const screenSize = Math.min(containerElement.clientWidth, containerElement.clientHeight);
-
-    const layoutCenterX = (graphRect.x1 + graphRect.x2) / 2;
-    const layoutCenterY = (graphRect.y1 + graphRect.y2) / 2;
-
-    const desiredScale = screenSize / graphSize;
+    // const graphRect = this.layout.getGraphRect();
+    // const layoutCenterX = (graphRect.x1 + graphRect.x2) / 2;
+    // const layoutCenterY = (graphRect.y1 + graphRect.y2) / 2;
     // this.renderer.moveTo(layoutCenterX, layoutCenterY);
-    zoomOut(desiredScale, 1);
-
-    function zoomOut(desiredScale, currentScale) {
-      if (desiredScale < currentScale) {
-        currentScale = this.renderer.zoomOut();
-        setTimeout(function () {
-            zoomOut(desiredScale, currentScale);
-        }, 16);
-      }
-    }
   }
 
   pause() {
