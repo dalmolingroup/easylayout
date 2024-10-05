@@ -301,7 +301,7 @@
     )
     
     // stackoverflow.com/questions/54395045/fabricjs-programmatically-pan-canvas-on-mobile-browser
-    fabricCanvas.zoomToPoint(canvasCenter, fabricCanvas.getZoom() / (desiredScale * 0.1));
+    // fabricCanvas.zoomToPoint(canvasCenter, fabricCanvas.getZoom() / (desiredScale * 0.1));
     fabricCanvas.absolutePan(canvasCenter);
   });
 
