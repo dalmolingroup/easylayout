@@ -144,8 +144,16 @@ export class SimulationWrapperD3 extends SimulationWrapperBase {
   }
 
   updateLayoutSetting(settingId) {
+    const acessor = {
+      alphaDecay: this.layout.simulator.alphaDecay,
+      velocityDecay: this.layout.simulator.velocityDecay,
+      strength: this.layout.simulator.force("charge").strength,
+      distance: this.layout.simulator.force("link").distance,
+      iterations: this.layout.simulator.force("link").iterations,
+    }
+
     return (e) => {
-      this.layout.simulator.force("charge")[settingId](e.target.value);
+      acessor[settingId](e.target.value);
     }
   }
 }
