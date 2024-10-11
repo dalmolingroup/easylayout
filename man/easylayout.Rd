@@ -4,10 +4,14 @@
 \alias{easylayout}
 \title{Layout an igraph object using easylayout's web application.}
 \usage{
-easylayout(graph)
+easylayout(graph, layout = NULL, precompute = TRUE)
 }
 \arguments{
 \item{graph}{An igraph object representing the network to be laid out.}
+
+\item{layout}{Optional initial layout supplied by the user.}
+
+\item{precompute}{Whether or not to skip precomputing the initial layout.}
 }
 \value{
 A two column matrix with XY coordinates and N rows, where N is

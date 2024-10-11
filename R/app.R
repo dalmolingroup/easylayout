@@ -10,6 +10,8 @@
 #' base package itself.
 #'
 #' @param graph An igraph object representing the network to be laid out.
+#' @param layout Optional initial layout supplied by the user.
+#' @param precompute Whether or not to skip precomputing the initial layout.
 #' @return A two column matrix with XY coordinates and N rows, where N is
 #' the number of vertices in the graph.
 #' @examples
@@ -20,7 +22,7 @@
 #' plot(g)
 #' }
 #' @export
-easylayout <- function(graph) {
+easylayout <- function(graph, layout = NULL, precompute = TRUE) {
   # Nodes must have some sort of identifier.
   # Falls back to 1, 2, 3... if "name" is not available.
   if (is.null(igraph::V(graph)$name)) {
@@ -38,6 +40,11 @@ easylayout <- function(graph) {
   if (!is.null(cached_layout)) {
     print("Using cached layout from previous run...")
     return(start_app(graph, cached_layout$layout))
+  }
+
+  if (!precompute) {
+    print("Skipping layout precomputation...")
+    return(start_app(graph))
   }
 
   # Magic precomputing
