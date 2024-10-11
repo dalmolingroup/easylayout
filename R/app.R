@@ -102,10 +102,10 @@ start_app <- function(graph, layout) {
     igraph::as_data_frame("vertices") |>
     dplyr::select(
       id = name,
-      initialX = x,
-      initialY = y,
       component,
-      tidyselect::any_of(c("color", "size"))
+      tidyselect::any_of(
+        c("initialX" = x, "initialY" = y, "color", "size")
+      )
     )
 
   graph_json <- jsonlite::toJSON(list(
