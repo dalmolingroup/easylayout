@@ -104,7 +104,7 @@ start_app <- function(graph, layout) {
       id = name,
       component,
       tidyselect::any_of(
-        c("initialX" = x, "initialY" = y, "color", "size")
+        c("initialX" = "x", "initialY" = "y", "color", "size")
       )
     )
 
