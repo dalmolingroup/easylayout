@@ -61,10 +61,8 @@ to a variable in your R environment. The output is just a 2-column matrix:
 layout <- easylayout(g)
 ```
 
-Once you achieve your desired layout, retrieve the results back to your
-R environment and use a plotting package to display the resulting
-network. In the example below, we set the x and y values to node
-attributes and plot the network using ggraph.
+Once you store the final coordinates to a variable, use any plotting package to
+display the network. In the example below, we plot the network using ggraph.
 
 ``` r
 ggraph::ggraph(g, layout = layout) +
