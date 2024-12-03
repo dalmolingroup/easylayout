@@ -54,6 +54,24 @@ igraph::V(g)$color <- sample(rainbow(5), number_of_vertices, replace = TRUE)
 plot(g, layout = easylayout, vertex.label = NA, margin = 0)
 ```
 
+You can also run easylayout as a standalone function, attributing its output
+to a variable in your R environment. The output is just a 2-column matrix:
+
+``` r
+layout <- easylayout(g)
+```
+
+Once you store the final coordinates to a variable, use any plotting package to
+display the network. In the example below, we plot the network using ggraph.
+
+``` r
+ggraph::ggraph(g, layout = layout) +
+  ggraph::geom_edge_link() +
+  ggraph::geom_node_point(aes(color = color)) + 
+  ggplot2::coord_fixed() +
+  ggplot2::theme_void()
+```
+
 ## Future work
 
 The current implementation focuses on the R ecosystem, but using web
