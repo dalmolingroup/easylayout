@@ -54,6 +54,27 @@ igraph::V(g)$color <- sample(rainbow(5), number_of_vertices, replace = TRUE)
 plot(g, layout = easylayout, vertex.label = NA, margin = 0)
 ```
 
+You can also run easylayout as a function and attribute the results to a
+variable, containing the layout itself:
+
+``` r
+layout <- easylayout(g)
+```
+
+Once you achieve your desired layout, retrieve the results back to your
+R environment and use a plotting package to display the resulting
+network. In the example below, we set the x and y values to node
+attributes and plot the network using ggraph.
+
+``` r
+V(g)$x <- layout[, 1]
+V(g)$y <- layout[, 2]
+
+ggraph::ggraph(g, layout = "manual", x = V(g)$x, y = V(g)$y) +
+  ggraph::geom_edge_link() +
+  ggraph::geom_node_point()
+```
+
 ## Future work
 
 The current implementation focuses on the R ecosystem, but using web
